@@ -3,6 +3,7 @@ import shopify, { Props as ShopifyProps } from "../shopify/mod.ts";
 import vnda, { Props as VNDAProps } from "../vnda/mod.ts";
 import vtex, { Props as VTEXProps } from "../vtex/mod.ts";
 import wake, { Props as WakeProps } from "../wake/mod.ts";
+import salesforce, { Props as SalesforceProps } from "../salesforce/mod.ts";
 import website, { Props as WebsiteProps } from "../website/mod.ts";
 import manifest, { Manifest } from "./manifest.gen.ts";
 import { bgYellow } from "std/fmt/colors.ts";
@@ -13,7 +14,7 @@ type CustomPlatform = {
 
 export type Props = WebsiteProps & {
   /** @deprecated Use selected commerce instead */
-  commerce?: VNDAProps | VTEXProps | ShopifyProps | WakeProps | CustomPlatform;
+  commerce?: VNDAProps | VTEXProps | ShopifyProps | WakeProps | SalesforceProps | CustomPlatform;
 };
 
 type WebsiteApp = ReturnType<typeof website>;
@@ -21,7 +22,8 @@ type CommerceApp =
   | ReturnType<typeof vnda>
   | ReturnType<typeof vtex>
   | ReturnType<typeof wake>
-  | ReturnType<typeof shopify>;
+  | ReturnType<typeof shopify>
+  | ReturnType<typeof salesforce>
 
 export default function Site(
   state: Props,
@@ -45,6 +47,8 @@ export default function Site(
     ? wake(commerce)
     : commerce?.platform === "shopify"
     ? shopify(commerce)
+    : commerce?.platform === "salesforce"
+    ? salesforce(commerce)
     : null;
 
   return {
