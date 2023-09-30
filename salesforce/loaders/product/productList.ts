@@ -75,7 +75,7 @@ export default async function loader(
   props: Props,
   req: Request,
   ctx: AppContext,
-): Promise<null | Omit<Product[], "isVariantOf">> {
+): Promise<Product[] | null> {
   const url = new URL(req.url);
   const { categoryID, pmid, sort, limit, q, price } = props;
 
@@ -101,6 +101,7 @@ export default async function loader(
     ),
     token,
   );
+  console.log(getProductBySlug)
 
   if (getProductBySlug.total == 0) return null;
 
