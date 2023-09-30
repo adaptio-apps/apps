@@ -3,18 +3,22 @@
 // This file is automatically updated during development when running `dev.ts`.
 
 import * as $$$0 from "./loaders/extensions/productDetails.ts";
-import * as $$$1 from "./loaders/extensions/products.ts";
-import * as $$$$$$0 from "./sections/Seo/SeoPLP.tsx";
-import * as $$$$$$1 from "./sections/Seo/SeoPDP.tsx";
+import * as $$$1 from "./loaders/extensions/productListingPage.ts";
+import * as $$$2 from "./loaders/extensions/products.ts";
+import * as $$$3 from "./loaders/navbar.ts";
+import * as $$$$$$0 from "./sections/Seo/SeoPDP.tsx";
+import * as $$$$$$1 from "./sections/Seo/SeoPLP.tsx";
 
 const manifest = {
   "loaders": {
     "commerce/loaders/extensions/productDetails.ts": $$$0,
-    "commerce/loaders/extensions/products.ts": $$$1,
+    "commerce/loaders/extensions/productListingPage.ts": $$$1,
+    "commerce/loaders/extensions/products.ts": $$$2,
+    "commerce/loaders/navbar.ts": $$$3,
   },
   "sections": {
-    "commerce/sections/Seo/SeoPDP.tsx": $$$$$$1,
-    "commerce/sections/Seo/SeoPLP.tsx": $$$$$$0,
+    "commerce/sections/Seo/SeoPDP.tsx": $$$$$$0,
+    "commerce/sections/Seo/SeoPLP.tsx": $$$$$$1,
   },
   "name": "commerce",
   "baseUrl": import.meta.url,

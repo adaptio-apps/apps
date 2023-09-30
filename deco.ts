@@ -10,21 +10,25 @@ const compatibilityApps = [{
 
 const config = {
   apps: [
+    app("salesforce"),
     {
       dir: "admin",
       name: "deco-sites/admin",
     },
+    app("analytics"),
     app("typesense"),
     app("algolia"),
     app("handlebars"),
     app("vtex"),
     app("vnda"),
     app("wake"),
+    app("linx"),
     app("shopify"),
     app("website"),
     app("commerce"),
     app("workflows"),
     app("verified-reviews"),
+    app("power-reviews"),
     app("decohub"),
     ...compatibilityApps,
   ],

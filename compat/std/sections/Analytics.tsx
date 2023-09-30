@@ -4,6 +4,16 @@ import GoogleTagScript from "partytown/integrations/GTAG.tsx";
 import Script from "partytown/Script.tsx";
 import { AnalyticsEvent } from "../../../commerce/types.ts";
 
+declare global {
+  interface Window {
+    DECO_ANALYTICS: Record<
+      string,
+      // deno-lint-ignore no-explicit-any
+      (action: string, eventType: string, props?: any) => void
+    >;
+  }
+}
+
 /**
  * This function handles all ecommerce analytics events.
  * Add another ecommerce analytics modules here.
@@ -17,7 +27,10 @@ const sendAnalyticsEvent = <T extends AnalyticsEvent>(
     ecommerce: event.params,
   });
 
-  window.jitsu && window.jitsu("track", "ecommerce", event);
+  window.DECO_ANALYTICS &&
+    Object.values(window.DECO_ANALYTICS).map((f) =>
+      f("track", "ecommerce", event)
+    );
 };
 
 export interface Props {
