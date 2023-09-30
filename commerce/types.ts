@@ -231,8 +231,24 @@ export interface AggregateOffer {
   priceCurrency?: string;
 }
 
+export interface ReviewPageResults {
+  currentPageNumber?: number;
+  nextPageUrl?: string;
+  pageSize?: number;
+  pagesTotal?: number;
+  totalResults?: number;
+}
+
+export interface ReviewPage {
+  page: ReviewPageResults;
+  id: string;
+  review?: Review[];
+  aggregateRating?: AggregateRating;
+}
+
 export interface Review extends Omit<Thing, "@type"> {
   "@type": "Review";
+  id?: string;
   /** Author of the */
   author?: Author[];
   /** The date that the review was published, in ISO 8601 date format.*/
@@ -245,10 +261,42 @@ export interface Review extends Omit<Thing, "@type"> {
   positiveNotes?: string[];
   /** This Review or Rating is relevant to this part or facet of the itemReviewed. */
   reviewAspect?: string;
+  /** Emphasis part of the review */
+  reviewHeadline?: string;
   /** The actual body of the review. */
   reviewBody?: string;
   /** The rating given in this review. Note that reviews can themselves be rated. The `reviewRating` applies to rating given by the review. The {@link https://schema.org/aggregateRating aggregateRating} property applies to the review itself, as a creative work. */
   reviewRating?: AggregateRating;
+  /** Extra review informations */
+  tags?: ReviewTag[];
+  /** BrandReviewed */
+  brand?: ReviewBrand;
+  /** Medias */
+  media?: ReviewMedia[];
+}
+
+export interface ReviewMedia {
+  type: "image" | "video";
+  url?: string;
+  alt?: string;
+  likes?: number;
+  unlikes?: number;
+}
+
+export interface ReviewBrand {
+  /** Brand Name */
+  name: string;
+  /** Brand Logo */
+  logo: string;
+  /** Brand website url */
+  url: string;
+}
+
+export interface ReviewTag {
+  /** Label of specific topic */
+  label?: string;
+  /** Caracteristics about the topic */
+  value?: string[];
 }
 
 export interface Author extends Omit<Thing, "@type"> {
@@ -257,6 +305,10 @@ export interface Author extends Omit<Thing, "@type"> {
   name?: string;
   /** A link to a web page that uniquely identifies the author of the article. For example, the author's social media page, an about me page, or a bio page. */
   url?: string;
+  /** Indicates that the author is a real buyer */
+  verifiedBuyer?: boolean;
+  /** Author location */
+  location?: string;
 }
 
 // TODO: fix this hack and use Product directly where it appears
@@ -418,6 +470,8 @@ export interface Seo {
 export interface Search {
   term: string;
   href?: string;
+  hits?: number;
+  facets?: Array<{ key: string; values: string[] }>;
 }
 
 export interface Suggestion {
@@ -425,12 +479,52 @@ export interface Suggestion {
   products?: Product[];
 }
 
+/** @titleBy url */
+export interface SiteNavigationElementLeaf {
+  /** @hidden */
+  "@type": "SiteNavigationElement";
+  /** An additional type for the item, typically used for adding more specific types from external vocabularies in microdata syntax. This is a relationship between something and a class that the thing is in. In RDFa syntax, it is better to use the native RDFa syntax - the 'typeof' attribute - for multiple types. Schema.org tools may have only weaker understanding of extra types, in particular those defined externally. */
+  additionalType?: string;
+  /** The identifier property represents any kind of identifier for any kind of {@link https://schema.org/Thing Thing}, such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties for representing many of these, either as textual strings or as URL (URI) links. See {@link /docs/datamodel.html#identifierBg background notes} for more details. */
+  identifier?: string;
+  /** An image of the item. This can be a {@link https://schema.org/URL URL} or a fully described {@link https://schema.org/ImageObject ImageObject}. */
+  image?: ImageObject[];
+  /** The name of the item. */
+  name?: string;
+  /** URL of the item. */
+  url?: string;
+}
+
+export interface SiteNavigationElement extends SiteNavigationElementLeaf {
+  // TODO: The schema generator is not handling recursive types leading to an infinite loop
+  // Lets circunvent this issue by enumerating the max allowed depth
+  children?: Array<
+    SiteNavigationElementLeaf & {
+      children?: Array<
+        SiteNavigationElementLeaf & {
+          children?: Array<
+            SiteNavigationElementLeaf & {
+              children?: Array<
+                SiteNavigationElementLeaf & {
+                  children?: SiteNavigationElementLeaf[];
+                }
+              >;
+            }
+          >;
+        }
+      >;
+    }
+  >;
+}
+
+/** @deprecated Use SiteNavigationElement instead */
 export interface NavItem {
   label: string;
   href: string;
   image?: { src?: string; alt?: string };
 }
 
+/** @deprecated Use SiteNavigationElement instead */
 export interface Navbar extends NavItem {
   // TODO: The schema generator is not handling recursive types leading in a infinite recursion loop
   // deno-lint-ignore no-explicit-any

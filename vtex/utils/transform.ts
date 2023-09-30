@@ -3,12 +3,12 @@ import type {
   BreadcrumbList,
   Filter,
   FilterToggleValue,
-  Navbar,
   Offer,
   Product,
   ProductDetailsPage,
   ProductGroup,
   PropertyValue,
+  SiteNavigationElement,
   UnitPriceSpecification,
 } from "../../commerce/types.ts";
 import { DEFAULT_IMAGE } from "../../commerce/utils/constants.ts";
@@ -700,18 +700,20 @@ export const toFilter =
     values: values.map(facetToToggle(selectedFacets, key, paramsToPersist)),
   });
 
-function nodeToNavbar(node: Category): Navbar {
+function nodeToNavbar(node: Category): SiteNavigationElement {
   const url = new URL(node.url, "https://example.com");
 
   return {
-    href: `${url.pathname}${url.search}`,
-    label: node.name,
+    "@type": "SiteNavigationElement",
+    url: `${url.pathname}${url.search}`,
+    name: node.name,
     children: node.children.map(nodeToNavbar),
   };
 }
 
-export const categoryTreeToNavbar = (tree: Category[]): Navbar[] =>
-  tree.map(nodeToNavbar);
+export const categoryTreeToNavbar = (
+  tree: Category[],
+): SiteNavigationElement[] => tree.map(nodeToNavbar);
 
 export const normalizeFacet = (facet: LegacyFacet) => {
   return {
