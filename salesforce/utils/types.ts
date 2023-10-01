@@ -354,6 +354,7 @@ export interface OrderForm {
   lastModified: string;
   locale: string;
   merchandizeTotalTax: number;
+  giftCertificateItems: GiftCertificateItem[];
   orderTotal: number;
   productItems: ProductItems[];
   productSubTotal: number;
@@ -375,6 +376,8 @@ export interface Shipments {
   productTotal: number;
   shipmentId: string;
   shipmentTotal: number;
+  shippingAddress: ShippingAddress;
+  shippingMethod: ShippingMethod;
   shippingStatus: string;
   shippingTotal: number;
   shippingTotalTax: number;
@@ -411,6 +414,7 @@ export interface ProductItems {
   itemId: string;
   itemText: string;
   price: number;
+  optionItems: OptionItem[];
   priceAfterItemDiscount: number;
   priceAfterOrderDiscount: number;
   productId: string;
@@ -422,3 +426,86 @@ export interface ProductItems {
   taxClassId: string;
   taxRate: number;
 }
+
+export interface billingAddress {
+  address1: string;
+  address2: string;
+  city: string;
+  companyName: string;
+  countryCode: string;
+  firstName: string;
+  fullName: string;
+  id: string;
+  jobTitle: string;
+  lastName: string;
+  phone: string;
+  postalCode: string;
+  secondName: string;
+  stateCode: string;
+  title: string;
+}
+
+export interface paymentInstrument {
+  amount: string;
+  paymentInstrumentId: string;
+  paymentMethodId: string;
+  paymentCard?: {
+    cardType: string;
+    creditCardExpired: boolean;
+  };
+}
+
+export interface OptionItem {
+  adjustedTax: number;
+  basePrice: number;
+  bonusProductLineItem: boolean;
+  gift: boolean;
+  itemId: string;
+  itemText: string;
+  optionId: string;
+  optionValueId: string;
+  price: number;
+  priceAfterItemDiscount: number;
+  priceAfterOrderDiscount: number;
+  productId: string;
+  productName: string;
+  quantity: number;
+  shipmentId: string;
+  tax: number;
+  taxBasis: number;
+  taxClassId: string;
+  taxRate: number;
+}
+
+export interface ShippingAddress {
+  address1: string;
+  address2: string;
+  city: string;
+  companyName: string;
+  countryCode: string;
+  firstName: string;
+  fullName: string;
+  id: string;
+  jobTitle: string;
+  lastName: string;
+  phone: string;
+  postalCode: string;
+  secondName: string;
+  stateCode: string;
+  title: string;
+}
+
+export interface ShippingMethod {
+  description: string;
+  id: string;
+  name: string;
+  price: number;
+}
+
+export interface GiftCertificateItem {
+  amount: number;
+  giftCertificateItemId: string;
+  recipientEmail: string;
+  shipmentId: string;
+}
+

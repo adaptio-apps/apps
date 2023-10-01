@@ -1,7 +1,10 @@
+// deno-lint-ignore-file no-explicit-any
 /* import { Runtime } from "deco-sites/std/runtime.ts"; */
 import { OrderForm } from "../utils/types.ts";
-import { state as storeState } from "./context.ts";
 import { AnalyticsItem } from "../../commerce/types.ts";
+import type { Manifest } from "../manifest.gen.ts";
+import { Context, state as storeState } from "./context.ts";
+import { invoke } from "../runtime.ts";
 
 const { cart, loading } = storeState;
 
@@ -43,17 +46,23 @@ export const itemToAnalyticsItem = (
   affiliation: "Salesforce",
 });
 
-// deno-lint-ignore no-unused-vars
-const wrap =
-  <T>(action: (p: T, init?: RequestInit | undefined) => Promise<OrderForm>) =>
-  (p: T) =>
-    storeState.enqueue(async (signal) => ({
-      cart: await action(p, { signal }),
-    }));
+type EnqueuableActions<
+  K extends keyof Manifest["actions"],
+> = Manifest["actions"][K]["default"] extends
+  (...args: any[]) => Promise<Context["cart"]> ? K : never;
+
+const enqueue = <
+  K extends keyof Manifest["actions"],
+>(key: EnqueuableActions<K>) =>
+(props: Parameters<Manifest["actions"][K]["default"]>[0]) =>
+  storeState.enqueue((signal) =>
+    invoke({ cart: { key, props } } as any, { signal }) as any
+  );
 
 const state = {
   cart,
   loading,
+  addItems: enqueue("salesforce/actions/cart/addItems.ts"),
   /*
   TODO: Create actions on the card
   updateItems: wrap(

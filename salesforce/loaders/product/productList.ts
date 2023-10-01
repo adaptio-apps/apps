@@ -101,7 +101,6 @@ export default async function loader(
     ),
     token,
   );
-  console.log(getProductBySlug);
 
   if (getProductBySlug.total == 0) return null;
 
