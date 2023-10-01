@@ -508,4 +508,3 @@ export interface GiftCertificateItem {
   recipientEmail: string;
   shipmentId: string;
 }
-

@@ -1,10 +1,9 @@
 import type { App, AppContext as AC, ManifestOf } from "deco/mod.ts";
 import manifest, { Manifest } from "./manifest.gen.ts";
 import type { Account } from "./utils/types.ts";
-import {SalesforceClient  } from "./utils/client.ts";
+import { SalesforceClient } from "./utils/client.ts";
 import { createHttpClient } from "../utils/http.ts";
-import { fetchAPI } from "../utils/fetch.ts"
-
+import { fetchAPI } from "../utils/fetch.ts";
 
 export type AppContext = AC<ReturnType<typeof Salesforce>>;
 
@@ -22,15 +21,13 @@ export const color = 0x02A0E0;
  */
 export default function Salesforce(
   prop: Props,
-){
-
+) {
   const slc = createHttpClient<SalesforceClient>({
     base: `https://${prop.shortCode}.api.commercecloud.salesforce.com`,
     fetcher: fetchAPI,
   });
 
   const state = { ...prop, slc };
-
 
   const app: App<Manifest, typeof state> = {
     state,
@@ -39,4 +36,3 @@ export default function Salesforce(
 
   return app;
 }
-
