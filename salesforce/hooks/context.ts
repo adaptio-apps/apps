@@ -3,8 +3,8 @@ import { signal } from "@preact/signals";
 import { invoke } from "../runtime.ts";
 import type { OrderForm } from "../utils/types.ts";
 
-interface Context {
-  cart: OrderForm;
+export interface Context {
+  cart: OrderForm | null;
 }
 
 const loading = signal<boolean>(true);
@@ -63,4 +63,5 @@ if (IS_BROWSER) {
 export const state = {
   ...context,
   loading,
+  enqueue,
 };
