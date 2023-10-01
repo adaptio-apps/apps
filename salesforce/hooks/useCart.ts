@@ -6,7 +6,7 @@ import { AnalyticsItem } from "../../commerce/types.ts";
 const { cart, loading } = storeState;
 
 export const mapOrderFormItemsToAnalyticsItems = (
-  orderForm: Pick<OrderForm, "productItems" | "couponItems">
+  orderForm: Pick<OrderForm, "productItems" | "couponItems">,
 ): AnalyticsItem[] => {
   const { productItems, couponItems } = orderForm;
 
@@ -30,7 +30,7 @@ export const mapOrderFormItemsToAnalyticsItems = (
 export const itemToAnalyticsItem = (
   item: OrderForm["productItems"][number],
   index: number,
-  couponItems?: OrderForm["couponItems"]
+  couponItems?: OrderForm["couponItems"],
 ) => ({
   item_id: item.productId,
   item_name: item.productName ?? item.itemText ?? "",
