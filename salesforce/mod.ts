@@ -6,6 +6,9 @@ import type { Account } from "./utils/types.ts";
 export interface Props extends Account {
   platform: "salesforce";
 }
+
+export const color = 0x02A0E0;
+
 /**
  * @title Salesforce
  */

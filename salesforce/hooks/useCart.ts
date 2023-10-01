@@ -6,7 +6,7 @@ import { AnalyticsItem } from "../../commerce/types.ts";
 const { cart, loading } = storeState;
 
 export const mapOrderFormItemsToAnalyticsItems = (
-  orderForm: Pick<OrderForm, "productItems" | "couponItems">,
+  orderForm: Pick<OrderForm, "productItems" | "couponItems">
 ): AnalyticsItem[] => {
   const { productItems, couponItems } = orderForm;
 
@@ -26,6 +26,22 @@ export const mapOrderFormItemsToAnalyticsItems = (
     affiliation: "Salesforce",
   }));
 };
+
+export const itemToAnalyticsItem = (
+  item: OrderForm["productItems"][number],
+  index: number,
+  couponItems?: OrderForm["couponItems"]
+) => ({
+  item_id: item.productId,
+  item_name: item.productName ?? item.itemText ?? "",
+  coupon: couponItems?.map((item) => item.code).join(",") ?? "",
+  discount: Number(item.price - item.priceAfterItemDiscount),
+  index,
+  item_variant: item.productName ?? item.itemText ?? "",
+  price: item.price,
+  quantity: item.quantity,
+  affiliation: "Salesforce",
+});
 
 // deno-lint-ignore no-unused-vars
 const wrap =
