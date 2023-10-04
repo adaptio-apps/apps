@@ -10,6 +10,7 @@ const compatibilityApps = [{
 
 const config = {
   apps: [
+    app("Salesforce"),
     {
       dir: "admin",
       name: "deco-sites/admin",
