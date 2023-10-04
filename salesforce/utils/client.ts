@@ -20,13 +20,10 @@ export interface SalesforceClient {
     };
   "POST /shopper/auth/v1/organizations/:organizationId/oauth2/token": {
     response: TokenBaseSalesforce;
-    body: {
-      grant_type?: string;
-      refresh_token?: string;
-    };
+    body: URLSearchParams;
     headers: {
       Authorization: string;
-      ["content-type"]: "application/x-www-form-urlencoded";
+      "Content-Type": "application/x-www-form-urlencoded";
     };
   };
   "GET search/shopper-search/v1/organizations/:organizationId/product-search": {

@@ -8,13 +8,14 @@ import * as $$$$$$$$$$$2 from "./apps/analytics.ts";
 import * as $$$$$$$$$$$3 from "./apps/handlebars.ts";
 import * as $$$$$$$$$$$4 from "./apps/linx.ts";
 import * as $$$$$$$$$$$5 from "./apps/power-reviews.ts";
-import * as $$$$$$$$$$$6 from "./apps/shopify.ts";
-import * as $$$$$$$$$$$7 from "./apps/typesense.ts";
-import * as $$$$$$$$$$$8 from "./apps/verified-reviews.ts";
-import * as $$$$$$$$$$$9 from "./apps/vnda.ts";
-import * as $$$$$$$$$$$10 from "./apps/vtex.ts";
-import * as $$$$$$$$$$$11 from "./apps/wake.ts";
-import * as $$$$$$$$$$$12 from "./apps/workflows.ts";
+import * as $$$$$$$$$$$6 from "./apps/salesforce.ts";
+import * as $$$$$$$$$$$7 from "./apps/shopify.ts";
+import * as $$$$$$$$$$$8 from "./apps/typesense.ts";
+import * as $$$$$$$$$$$9 from "./apps/verified-reviews.ts";
+import * as $$$$$$$$$$$10 from "./apps/vnda.ts";
+import * as $$$$$$$$$$$11 from "./apps/vtex.ts";
+import * as $$$$$$$$$$$12 from "./apps/wake.ts";
+import * as $$$$$$$$$$$13 from "./apps/workflows.ts";
 
 const manifest = {
   "apps": {
@@ -24,13 +25,14 @@ const manifest = {
     "decohub/apps/handlebars.ts": $$$$$$$$$$$3,
     "decohub/apps/linx.ts": $$$$$$$$$$$4,
     "decohub/apps/power-reviews.ts": $$$$$$$$$$$5,
-    "decohub/apps/shopify.ts": $$$$$$$$$$$6,
-    "decohub/apps/typesense.ts": $$$$$$$$$$$7,
-    "decohub/apps/verified-reviews.ts": $$$$$$$$$$$8,
-    "decohub/apps/vnda.ts": $$$$$$$$$$$9,
-    "decohub/apps/vtex.ts": $$$$$$$$$$$10,
-    "decohub/apps/wake.ts": $$$$$$$$$$$11,
-    "decohub/apps/workflows.ts": $$$$$$$$$$$12,
+    "decohub/apps/salesforce.ts": $$$$$$$$$$$6,
+    "decohub/apps/shopify.ts": $$$$$$$$$$$7,
+    "decohub/apps/typesense.ts": $$$$$$$$$$$8,
+    "decohub/apps/verified-reviews.ts": $$$$$$$$$$$9,
+    "decohub/apps/vnda.ts": $$$$$$$$$$$10,
+    "decohub/apps/vtex.ts": $$$$$$$$$$$11,
+    "decohub/apps/wake.ts": $$$$$$$$$$$12,
+    "decohub/apps/workflows.ts": $$$$$$$$$$$13,
   },
   "name": "decohub",
   "baseUrl": import.meta.url,

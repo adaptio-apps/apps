@@ -8,12 +8,10 @@ export const middleware = async (
   req: Request,
   ctx: AppMiddlewareContext,
 ) => {
-  const res = new Response();
-
   const cookies = getCookies(req.headers);
   const siteId = String(ctx?.siteId);
   if (`token_${siteId}` in cookies || !ctx) {
-    return res;
+    return ctx.next!();
   }
 
   const cc_nxCookie = cookies[`cc-nx_${siteId}`];
@@ -25,14 +23,12 @@ export const middleware = async (
       refreshToken,
     }, ctx);
     if (token) {
-      setTokenCookie(token, res, siteId);
+      setTokenCookie(token, ctx.response, siteId);
     }
   }
   const token = await authApi({ grantType: "client_credentials" }, ctx);
-
   if (token) {
-    setTokenCookie(token, res, siteId);
+    setTokenCookie(token, ctx.response, siteId);
   }
-
-  return ctx.next!();
+  return await ctx.next!();
 };

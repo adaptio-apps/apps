@@ -77,9 +77,11 @@ export default async function loader(
   ctx: AppContext,
 ): Promise<Product[] | null> {
   const { siteId } = ctx;
-
+  
   const cookies = getCookies(req.headers);
   const token = cookies[`token_${siteId}`];
+  console.log(cookies);
+  console.log(token);
   const url = new URL(req.url);
   const { categoryID, pmid, sort, limit, q, price } = props;
   const refineParams = toRefineParams(props.extraParams);

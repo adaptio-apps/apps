@@ -8,7 +8,6 @@ import manifest, { Manifest } from "./manifest.gen.ts";
 import type { Account } from "./utils/types.ts";
 import { SalesforceClient } from "./utils/client.ts";
 import { createHttpClient } from "../utils/http.ts";
-import { fetchAPI } from "../utils/fetch.ts";
 import { middleware } from "./middleware.ts";
 
 export type App = ReturnType<typeof Salesforce>;
@@ -31,7 +30,6 @@ export default function Salesforce(
 ) {
   const slc = createHttpClient<SalesforceClient>({
     base: `https://${prop.shortCode}.api.commercecloud.salesforce.com`,
-    fetcher: fetchAPI,
   });
 
   const state = { ...prop, slc };

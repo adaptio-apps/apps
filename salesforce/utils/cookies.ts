@@ -30,7 +30,7 @@ export const proxySetCookie = (
 
 export const setTokenCookie = (
   token: TokenBaseSalesforce,
-  res: Response,
+  res: { headers: Headers },
   siteId: string,
 ) => {
   const {
