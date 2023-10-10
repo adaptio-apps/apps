@@ -14,8 +14,8 @@ const manifest = {
     "$live/loaders/state.ts": $$$0,
   },
   "handlers": {
-    "$live/handlers/devPage.ts": $$$$1,
-    "$live/handlers/router.ts": $$$$0,
+    "$live/handlers/devPage.ts": $$$$0,
+    "$live/handlers/router.ts": $$$$1,
   },
   "sections": {
     "$live/sections/EmptySection.tsx": $$$$$$1,
