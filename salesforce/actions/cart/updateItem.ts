@@ -22,7 +22,7 @@ const action = async (
   const { itemId, quantity } = props;
   try {
     const path = quantity > 0 ? "PATCH" : "DELETE";
-    const body = quantity > 0 ? { quantity: quantity } : {}
+    const body = quantity > 0 ? { quantity: quantity } : {};
 
     const response = await slc
       [`${path} /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId/items/:itemId`](
@@ -47,7 +47,6 @@ const action = async (
     );
     proxySetCookie(response.headers, ctx.response.headers, req.url);
     if (!productsBasketSku) {
-      console.log('ele não achou sku no basket')
       return basket;
     }
 
