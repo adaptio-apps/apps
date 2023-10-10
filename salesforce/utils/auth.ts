@@ -27,7 +27,6 @@ export default async function authApi(
     params.set("refresh_token", refreshToken);
   }
 
-  console.log(headers);
   const response = await slc
     ["POST /shopper/auth/v1/organizations/:organizationId/oauth2/token"](
       {

@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 /* import { Runtime } from "deco-sites/std/runtime.ts"; */
-import { OrderForm } from "../utils/types.ts";
+import { Basket } from "../utils/types.ts";
 import { AnalyticsItem } from "../../commerce/types.ts";
 import type { Manifest } from "../manifest.gen.ts";
 import { Context, state as storeState } from "./context.ts";
@@ -9,7 +9,7 @@ import { invoke } from "../runtime.ts";
 const { cart, loading } = storeState;
 
 export const mapOrderFormItemsToAnalyticsItems = (
-  orderForm: Pick<OrderForm, "productItems" | "couponItems">,
+  orderForm: Pick<Basket, "productItems" | "couponItems">,
 ): AnalyticsItem[] => {
   const { productItems, couponItems } = orderForm;
 
@@ -31,9 +31,9 @@ export const mapOrderFormItemsToAnalyticsItems = (
 };
 
 export const itemToAnalyticsItem = (
-  item: OrderForm["productItems"][number],
+  item: Basket["productItems"][number],
   index: number,
-  couponItems?: OrderForm["couponItems"],
+  couponItems?: Basket["couponItems"],
 ) => ({
   item_id: item.productId,
   item_name: item.productName ?? item.itemText ?? "",
@@ -61,13 +61,12 @@ const enqueue = <
 
 const state = {
   cart,
-  loading,
+  loading, 
+  removeItem: enqueue("salesforce/actions/cart/removeItem.ts"),
   addItems: enqueue("salesforce/actions/cart/addItems.ts"),
-  /*
-  TODO: Create actions on the card
-  updateItems: wrap(
-    Runtime.create("deco-sites/std/actions/vtex/cart/updateItems.ts"),
-  ), */
+  updateItem: enqueue("salesforce/actions/cart/updateItem.ts"),
+  removeCoupon: enqueue("salesforce/actions/cart/removeCoupon.ts"),
+  addCoupon: enqueue("salesforce/actions/cart/addCoupon.ts"),
   mapItemsToAnalyticsItems: mapOrderFormItemsToAnalyticsItems,
 };
 

@@ -25,8 +25,53 @@ export interface ProductBaseSalesforce {
   c_attributes: DynamicAttributes;
 }
 
+export interface productSearchSalesforce {
+  limit: number;
+  hits: Hit[];
+  query: string;
+  refinements: Refinement[];
+  searchPhraseSuggestions: SearchPhraseSuggestions;
+  sortingOptions: SortingOption[];
+  offset: number;
+  total: number;
+}
+
+export interface Refinement {
+  attributeId: string;
+  label: string;
+  values: Refinementvalue[];
+}
+
+export interface Refinementvalue {
+  hitCount: number;
+  label: string;
+  value: string;
+  presentationId?: string;
+}
+
+export interface SearchPhraseSuggestions {
+  suggestedPhrases: SuggestedPhrase[];
+  suggestedTerms: SuggestedTerm[];
+}
+
+export interface SuggestedPhrase {
+  exactMatch: boolean;
+  phrase: string;
+}
+
+export interface SuggestedTerm {
+  originalTerm: string;
+  terms: Term[];
+}
+
+export interface Term {
+  completed: boolean;
+  corrected: boolean;
+  exactMatch: boolean;
+  value: string;
+}
 // deno-lint-ignore no-explicit-any
-type DynamicAttributes = Record<string, any>;
+export type DynamicAttributes = Record<string, any>;
 
 export interface TokenBaseSalesforce {
   access_token: string;
@@ -252,6 +297,8 @@ export interface ProductSearch {
   sortingOptions: SortingOptions[];
   offset: number;
   total: number;
+  // deno-lint-ignore no-explicit-any
+  data?:any;
 }
 
 export interface ProductSeachHits {
@@ -338,7 +385,7 @@ export interface PricingRange {
   maxValue?: number;
 }
 
-export interface OrderForm {
+export interface Basket {
   adjustedMerchandizeTotalTax?: number;
   adjustedShippingTotalTax?: number;
   agentBasket: boolean;
@@ -527,4 +574,38 @@ export interface TokenBaseSalesforce {
   enc_user_id: string;
   idp_access_token: string;
   idp_refresh_token: string;
+}
+
+export interface Hit {
+  currency: string;
+  hitType: string;
+  image: Image;
+  orderable: boolean;
+  price: number;
+  productId: string;
+  productName: string;
+  productType: ProductType;
+  representedProduct: RepresentedProduct;
+  representedProducts: RepresentedProduct[];
+  variationAttributes: VariationAttributes[];
+}
+
+export interface ProductType {
+  master: boolean;
+}
+
+export interface Image {
+  alt: string;
+  disBaseLink: string;
+  link: string;
+  title: string;
+}
+
+export interface SortingOption {
+  id: string;
+  label: string;
+}
+export interface BasketItems{
+  productId: string;
+  quantity: number;
 }

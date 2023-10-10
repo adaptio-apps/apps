@@ -5,8 +5,11 @@
 import * as $$$0 from "./loaders/cart.ts";
 import * as $$$1 from "./loaders/product/productDetailsPage.ts";
 import * as $$$2 from "./loaders/product/productList.ts";
-import * as $$$$$$$$$0 from "./actions/cart/addItems.ts";
-import * as $$$$$$$$$1 from "./actions/cart/updateItem.ts";
+import * as $$$$$$$$$0 from "./actions/cart/addCoupon.ts";
+import * as $$$$$$$$$1 from "./actions/cart/addItems.ts";
+import * as $$$$$$$$$2 from "./actions/cart/removeCoupon.ts";
+import * as $$$$$$$$$3 from "./actions/cart/removeItem.ts";
+import * as $$$$$$$$$4 from "./actions/cart/updateItem.ts";
 
 const manifest = {
   "loaders": {
@@ -15,8 +18,11 @@ const manifest = {
     "salesforce/loaders/product/productList.ts": $$$2,
   },
   "actions": {
-    "salesforce/actions/cart/addItems.ts": $$$$$$$$$0,
-    "salesforce/actions/cart/updateItem.ts": $$$$$$$$$1,
+    "salesforce/actions/cart/addCoupon.ts": $$$$$$$$$0,
+    "salesforce/actions/cart/addItems.ts": $$$$$$$$$1,
+    "salesforce/actions/cart/removeCoupon.ts": $$$$$$$$$2,
+    "salesforce/actions/cart/removeItem.ts": $$$$$$$$$3,
+    "salesforce/actions/cart/updateItem.ts": $$$$$$$$$4,
   },
   "name": "salesforce",
   "baseUrl": import.meta.url,

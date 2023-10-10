@@ -1,4 +1,4 @@
-import { Images, OrderForm, ProductBaseSalesforce } from "../utils/types.ts";
+import { Images, Basket, ProductBaseSalesforce } from "../utils/types.ts";
 import { AppContext } from "../mod.ts";
 import { paths } from "../utils/paths.ts";
 import { getCookies } from "std/http/mod.ts";
@@ -11,13 +11,13 @@ export default async function loader(
   _props: unknown,
   req: Request,
   ctx: AppContext,
-): Promise<OrderForm | null> {
+): Promise<Basket | null> {
   const token = getCookies(req.headers)[`token_${ctx.siteId}`];
   const basketId = getCookies(req.headers)[`cart_${ctx.siteId}`];
 
   if (!token || !basketId) return null;
 
-  const basket = (await fetchAPI<OrderForm>(
+  const basket = (await fetchAPI<Basket>(
     paths(ctx)
       .checkout.shopper_baskets.v1.organizations._organizationId.baskets()
       .basketId(basketId)._,
@@ -27,7 +27,7 @@ export default async function loader(
         Authorization: `Bearer ${token}`,
       },
     },
-  )) as OrderForm;
+  )) as Basket;
 
   const finalBasket = basket.productItems
     ? {

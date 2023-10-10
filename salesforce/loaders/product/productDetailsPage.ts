@@ -9,6 +9,7 @@ import { getCookies } from "std/http/mod.ts";
 
 export interface Props {
   slug: RequestURLParam;
+  id: RequestURLParam;
 }
 
 /**
@@ -19,17 +20,17 @@ export default async function loader(
   props: Props,
   req: Request,
   ctx: AppContext,
-): Promise<null | ProductDetailsPage> {
+): Promise<ProductDetailsPage | null> {
   const url = new URL(req.url);
   const { siteId } = ctx;
 
   const cookies = getCookies(req.headers);
   const token = cookies[`token_${siteId}`];
-  const { slug } = props;
+  const { slug, id } = props;
 
   if (!slug) return null;
 
-  const id = url.searchParams.get("id");
+  console.log("passou aqui");
 
   if (!id) {
     const getProductBySlug = await fetchProduct<ProductSearch>(
@@ -73,9 +74,10 @@ export default async function loader(
     token,
   );
 
-  return {
-    ...toProductPage(getProductById, url.origin),
-  };
+  const newProduct = toProductPage(getProductById, url.origin);
+  console.log(newProduct);
+
+  return newProduct;
 }
 
 const fetchProduct = <T>(path: string, token: string) => {

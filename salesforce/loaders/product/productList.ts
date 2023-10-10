@@ -77,11 +77,30 @@ export default async function loader(
   ctx: AppContext,
 ): Promise<Product[] | null> {
   const { siteId } = ctx;
-  
+
   const cookies = getCookies(req.headers);
   const token = cookies[`token_${siteId}`];
-  console.log(cookies);
-  console.log(token);
+  if (!token) {
+    console.log(
+      "esse aqui é o req do product lisr depois que chamou o middleware e salvou o cookie",
+     req.headers,
+    );
+    console.log(
+      "chegou aqui mas não encontrou o token no cookie ainda",
+      cookies,
+    );
+  }
+
+  if (token) {
+    console.log(
+      "esse aqui é o req do product list com o cookie na segunda requisição",
+      req.headers,
+    );
+    console.log(
+      "esses são os cookies da segunda requisição",
+      cookies,
+    );
+  }
   const url = new URL(req.url);
   const { categoryID, pmid, sort, limit, q, price } = props;
   const refineParams = toRefineParams(props.extraParams);

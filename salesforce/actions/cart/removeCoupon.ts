@@ -6,8 +6,8 @@ import getBasketImages from "../../utils/product.ts";
 import { getHeaders } from "../../utils/transform.ts";
 
 export interface Props {
-  quantity: number;
-  itemId: string;
+  basketId: string;
+  couponItemId: string;
 }
 const action = async (
   props: Props,
@@ -18,38 +18,30 @@ const action = async (
   const cookies = getCookies(req.headers);
   const token = cookies[`token_${siteId}`];
   const basketId = cookies[`basket_${siteId}`];
+  const { couponItemId } = props;
 
-  const { itemId, quantity } = props;
+
   try {
-    const path = quantity > 0 ? "PATCH" : "DELETE";
-    const body = quantity > 0 ? { quantity: quantity } : {}
-
     const response = await slc
-      [`${path} /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId/items/:itemId`](
+      ["DELETE /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId/coupons/:couponItemId"](
         {
           organizationId,
           basketId,
-          itemId,
-          siteId: siteId,
+          couponItemId,
         },
         {
-          body: body,
           headers: getHeaders(token),
         },
       );
 
     const basket = await response.json();
 
-    const productsBasketSku: string[] = basket.productItems?.map(
+    const productsBasketSku: string[] = basket.productItems.map(
       (item: { productId: string }) => {
         return item.productId;
       },
     );
     proxySetCookie(response.headers, ctx.response.headers, req.url);
-    if (!productsBasketSku) {
-      console.log('ele não achou sku no basket')
-      return basket;
-    }
 
     return await getBasketImages(basket, productsBasketSku, req, ctx);
   } catch (error) {

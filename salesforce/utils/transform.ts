@@ -1,6 +1,7 @@
 // deno-lint-ignore-file
 import { slugfy } from "./utils.ts";
 import type {
+  Basket,
   ImageGroups,
   ProductBaseSalesforce,
   ProductSearch,
@@ -17,6 +18,8 @@ import type {
   PropertyValue,
 } from "deco-sites/std/commerce/types.ts";
 
+
+
 export const toProductPage = (
   product: ProductBaseSalesforce,
   baseURL: string,
@@ -27,7 +30,13 @@ export const toProductPage = (
   seo: {
     title: toSEOTitle(product),
     description: product.pageDescription ?? product.shortDescription ?? "",
-    canonical: getProductURL(baseURL, product.name, product.id).href,
+    canonical:
+      getProductURL(
+        baseURL,
+        product.name,
+        product.id,
+        product?.variants?.at(0)?.productId!,
+      ).href,
   },
 });
 
@@ -51,7 +60,13 @@ export const toProductList = (
         "@type": "Product",
         id: productId,
         productID: productId,
-        url: getProductURL(baseURL, productName, productId).href,
+        url:
+          getProductURL(
+            baseURL,
+            productName,
+            productId,
+            representedProduct?.id!,
+          ).href,
         name: productName,
         additionalProperty: toAdditionalProperties(variationAttributes),
         image: [
@@ -106,7 +121,7 @@ const toBreadcrumbList = (
       {
         "@type": "ListItem",
         name: name,
-        item: getProductURL(baseURL, name, id).href,
+        item: getProductURL(baseURL, name, id, id).href,
         position: categories.length + 1,
       },
     ],
@@ -138,7 +153,9 @@ const toProduct = (
     "@type": "Product",
     category: toCategory(primaryCategoryId),
     productID: id,
-    url: getProductURL(baseURL, name, id).href,
+    url:
+      getProductURL(baseURL, name, id, product.variants?.at(0)?.productId!)
+        .href,
     name: name,
     description: pageDescription,
     brand: {
@@ -151,7 +168,7 @@ const toProduct = (
       product,
     ),
     isVariantOf,
-    sku: id,
+    sku: product.variants?.at(0)?.productId!,
     image: imageGroups
       .filter((obj) => !obj.variationAttributes && obj.viewType === "large")
       .flatMap((obj) =>
@@ -192,7 +209,8 @@ const toVariantProduct = (
       "@type": "Product",
       category: toCategory(master.primaryCategoryId),
       productID: variant.productId,
-      url: getProductURL(baseURL, master.name, master.id).href,
+      url:
+        getProductURL(baseURL, master.name, master.id, variant.productId).href,
       name: master.name,
       description: master.pageDescription,
       brand: {
@@ -216,19 +234,31 @@ const toVariantProduct = (
       },
     };
   }),
-  url: getProductURL(baseURL, master.name, master.id).href,
+  url:
+    getProductURL(baseURL, master.name, master.id, variants[0].productId).href,
   name: master.name,
   additionalProperty: toExtraAdditionalProperties(master),
   model: master.id,
 });
 
+const getProductGroupURL = (
+  origin: string,
+  productName: string,
+  productId?: string,
+) => new URL(`/p/${slugfy(productName)}/${productId}`, origin);
+
 const getProductURL = (
   origin: string,
   productName: string,
-  id: string,
-): URL => {
-  const canonicalUrl = new URL(`/${slugfy(productName)}/p`, origin);
-  canonicalUrl.searchParams.set("id", id);
+  mastertId: string,
+  variantId: string,
+) => {
+  const canonicalUrl = getProductGroupURL(origin, productName, mastertId);
+
+  if (variantId) {
+    canonicalUrl.searchParams.set("skuId", variantId);
+  }
+
   return canonicalUrl;
 };
 
@@ -367,3 +397,13 @@ const toVariantOffer = (variant: Variants): Offer[] => [
       : "https://schema.org/OutOfStock",
   },
 ];
+
+export const getHeaders = (
+  token: string,
+): Headers => {
+  const headers = new Headers({
+    accept: "application/json",
+    Authorization: `Bearer ${token}`,
+  });
+  return headers;
+};

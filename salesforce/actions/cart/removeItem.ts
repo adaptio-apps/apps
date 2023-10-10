@@ -7,6 +7,7 @@ import { getHeaders } from "../../utils/transform.ts";
 
 export interface Props {
   quantity: number;
+  basketId: string;
   itemId: string;
 }
 const action = async (
@@ -19,37 +20,28 @@ const action = async (
   const token = cookies[`token_${siteId}`];
   const basketId = cookies[`basket_${siteId}`];
 
-  const { itemId, quantity } = props;
+  const { itemId } = props;
   try {
-    const path = quantity > 0 ? "PATCH" : "DELETE";
-    const body = quantity > 0 ? { quantity: quantity } : {}
-
     const response = await slc
-      [`${path} /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId/items/:itemId`](
+      ["DELETE /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId/items/:itemId"](
         {
           organizationId,
           basketId,
           itemId,
-          siteId: siteId,
         },
         {
-          body: body,
           headers: getHeaders(token),
         },
       );
 
     const basket = await response.json();
 
-    const productsBasketSku: string[] = basket.productItems?.map(
+    const productsBasketSku: string[] = basket.productItems.map(
       (item: { productId: string }) => {
         return item.productId;
       },
     );
     proxySetCookie(response.headers, ctx.response.headers, req.url);
-    if (!productsBasketSku) {
-      console.log('ele não achou sku no basket')
-      return basket;
-    }
 
     return await getBasketImages(basket, productsBasketSku, req, ctx);
   } catch (error) {
