@@ -83,7 +83,7 @@ export default async function loader(
   if (!token) {
     console.log(
       "esse aqui é o req do product lisr depois que chamou o middleware e salvou o cookie",
-     req.headers,
+      req.headers,
     );
     console.log(
       "chegou aqui mas não encontrou o token no cookie ainda",

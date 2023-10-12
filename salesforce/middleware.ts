@@ -12,12 +12,15 @@ export const middleware = async (
   const cookies = getCookies(req.headers);
   const siteId = String(ctx?.siteId);
 
-  const handleAuthAndBasket = async (grantType: string, refreshToken?: string) => {
+  const handleAuthAndBasket = async (
+    grantType: string,
+    refreshToken?: string,
+  ) => {
     const token = await authApi({ grantType, refreshToken }, ctx);
     if (token) {
       const basket = await createCart(token.access_token, ctx);
       if (basket) {
-       await setTokenCookie(token, ctx.response, siteId);
+        await setTokenCookie(token, ctx.response, siteId);
         setBasketCookie(basket, ctx.response, siteId);
       }
     }

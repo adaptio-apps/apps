@@ -1,10 +1,12 @@
 // deno-lint-ignore-file
 import { slugfy } from "./utils.ts";
 import type {
-  Basket,
   ImageGroups,
   ProductBaseSalesforce,
+  ProductSeachHits,
   ProductSearch,
+  ProductSearchRefinments,
+  SelectedRefinement,
   Variants,
   VariationAttributes,
 } from "./types.ts";
@@ -17,8 +19,11 @@ import type {
   ProductGroup,
   PropertyValue,
 } from "deco-sites/std/commerce/types.ts";
+import type { ProductListingPage } from "../../commerce/types.ts";
 
-
+type SalesforceProduct =
+  | ProductBaseSalesforce
+  | ProductSeachHits;
 
 export const toProductPage = (
   product: ProductBaseSalesforce,
@@ -30,13 +35,12 @@ export const toProductPage = (
   seo: {
     title: toSEOTitle(product),
     description: product.pageDescription ?? product.shortDescription ?? "",
-    canonical:
-      getProductURL(
-        baseURL,
-        product.name,
-        product.id,
-        product?.variants?.at(0)?.productId!,
-      ).href,
+    canonical: getProductURL(
+      baseURL,
+      product.name,
+      product.id,
+      product?.variants?.at(0)?.productId!,
+    ).href,
   },
 });
 
@@ -60,13 +64,12 @@ export const toProductList = (
         "@type": "Product",
         id: productId,
         productID: productId,
-        url:
-          getProductURL(
-            baseURL,
-            productName,
-            productId,
-            representedProduct?.id!,
-          ).href,
+        url: getProductURL(
+          baseURL,
+          productName,
+          productId,
+          representedProduct?.id!,
+        ).href,
         name: productName,
         additionalProperty: toAdditionalProperties(variationAttributes),
         image: [
@@ -129,7 +132,7 @@ const toBreadcrumbList = (
   };
 };
 
-const toProduct = (
+export const toProduct = (
   product: ProductBaseSalesforce,
   baseURL: string,
 ): Product => {
@@ -153,9 +156,8 @@ const toProduct = (
     "@type": "Product",
     category: toCategory(primaryCategoryId),
     productID: id,
-    url:
-      getProductURL(baseURL, name, id, product.variants?.at(0)?.productId!)
-        .href,
+    url: getProductURL(baseURL, name, id, product.variants?.at(0)?.productId!)
+      .href,
     name: name,
     description: pageDescription,
     brand: {
@@ -186,6 +188,37 @@ const toProduct = (
       offerCount: offers.length,
       offers,
     },
+  };
+};
+
+export const toProductHit = (
+  product: ProductSeachHits,
+  baseURL: string,
+): Product => {
+  const {
+    productId,
+    productName,
+    image,
+    price,
+  } = product;
+
+  return {
+    "@type": "Product",
+    productID: productId,
+    url: getProductGroupURL(baseURL, productName, productId)
+      .href,
+    name: productName,
+    gtin: productId,
+    additionalProperty: toAdditionalProperties(
+      product.variationAttributes,
+      product,
+    ),
+    sku: productId,
+    image: [{
+      "@type": "ImageObject",
+      url: image.link,
+      alternateName: image.alt,
+    }],
   };
 };
 
@@ -264,7 +297,7 @@ const getProductURL = (
 
 const toAdditionalProperties = (
   variationAttributes: VariationAttributes[] | undefined,
-  product?: ProductBaseSalesforce,
+  product?: SalesforceProduct,
 ): PropertyValue[] => {
   const propietiesFromVariationAttr: PropertyValue[] =
     variationAttributes?.flatMap(({ name, values }) =>
@@ -287,7 +320,7 @@ const toAdditionalProperties = (
 };
 
 const toExtraAdditionalProperties = (
-  product: ProductBaseSalesforce,
+  product: SalesforceProduct,
 ): PropertyValue[] => {
   return Object.entries(product)
     .filter(([key]) => key.startsWith("c_"))
@@ -397,6 +430,64 @@ const toVariantOffer = (variant: Variants): Offer[] => [
       : "https://schema.org/OutOfStock",
   },
 ];
+
+export const toFilters = (
+  refinements: ProductSearchRefinments[],
+  currentFilters: string[],
+  url: URL,
+): ProductListingPage["filters"] =>
+  (refinements ?? [])?.map((f) => ({
+    "@type": "FilterToggle",
+    label: f.label,
+    key: f.attributeId,
+    values: (f.values ?? []).map(
+      ({ value: value, hitCount: quantity, label: label }) => {
+        const index = currentFilters.findIndex((x) => x === value);
+        const selected = index > -1;
+        const newFilters = selected
+          ? currentFilters.filter((x) => x !== value)
+          : [...currentFilters, value];
+
+        const params =  new URLSearchParams(url.searchParams);
+
+        return {
+          value,
+          label,
+          quantity,
+          selected,
+          url: `?${filtersToSearchParams([{ key: label, value: value }], params)}`,
+        };
+      },
+    ),
+    quantity: 0,
+  }));
+
+export const filtersToSearchParams = (
+  selectedRefinements: SelectedRefinement[],
+  paramsToPersist?: URLSearchParams,
+) => {
+  const searchParams = new URLSearchParams(paramsToPersist);
+
+  for (const { key, value } of selectedRefinements) {
+    searchParams.append(`filter.${key}`, value);
+  }
+
+  return searchParams;
+};
+
+export const filtersFromURL = (url: URL) => {
+  const selectedRefinements: SelectedRefinement[] = [];
+
+  url.searchParams.forEach((value, name) => {
+    const [filter, key] = name.split(".");
+
+    if (filter === "filter" && typeof key === "string") {
+      selectedRefinements.push({ key, value });
+    }
+  });
+
+  return selectedRefinements;
+};
 
 export const getHeaders = (
   token: string,

@@ -1,4 +1,4 @@
-import { Images, Basket, ProductBaseSalesforce } from "../utils/types.ts";
+import { Basket, Images, ProductBaseSalesforce } from "../utils/types.ts";
 import { AppContext } from "../mod.ts";
 import { paths } from "../utils/paths.ts";
 import { getCookies } from "std/http/mod.ts";

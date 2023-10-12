@@ -3,6 +3,7 @@ import {
   BasketItems,
   DynamicAttributes,
   ProductSearch,
+  Sort,
   TokenBaseSalesforce,
 } from "./types.ts";
 
@@ -52,20 +53,40 @@ export interface SalesforceClient {
     Authorization: string;
   };
 
-  "GET search/shopper-search/v1/organizations/:organizationId/product-search": {
-    response: Basket;
+  "GET /search/shopper-search/v1/organizations/:organizationId/product-search":
+    {
+      response: ProductSearch;
+      searchParams: {
+        siteId: string;
+        q?: string;
+        refine?: Array<string>;
+        sort?: Sort;
+        currency?: string;
+        locale?: string;
+        expand?: string[];
+        offset?: number;
+        limit?: number;
+      };
+      headers: {
+        Authorization: string;
+      };
+    };
+  "GET /product/shopper-products/v1/organizations/:organizationId/products": {
+    response: ProductSearch;
     searchParams: {
       select?: string;
       ids?: string;
       inventoryIds?: string;
       currency?: string;
       expand?: string[];
-      locale: string;
+      locale?: string;
       perPricebook?: boolean;
       siteId: string;
     };
+    headers: {
+      Authorization: string;
+    };
   };
-
   "POST /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId/coupons":
     {
       response: Basket;
@@ -99,20 +120,19 @@ export interface SalesforceClient {
       Authorization: string;
     };
   };
-  "GET /product/shopper-products/v1/organizations/:organizationId/products": {
-    response: ProductSearch;
-    searchParams: {
-      select?: string;
-      ids?: string;
-      inventoryIds?: string;
-      currency?: string;
-      expand?: string[];
-      locale?: string;
-      perPricebook?: boolean;
-      siteId: string;
+
+  "GET /search/shopper-search/v1/organizations/:organizationId/search-suggestions":
+    {
+      response: ProductSearch;
+      searchParams: {
+        siteId: string;
+        q?: string;
+        currency?: string;
+        locale?: string;
+        limit?: number;
+      };
+      headers: {
+        Authorization: string;
+      };
     };
-    headers: {
-      Authorization: string;
-    };
-  };
 }

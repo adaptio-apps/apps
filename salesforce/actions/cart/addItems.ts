@@ -3,7 +3,7 @@ import type { Basket, BasketItems } from "../../utils/types.ts";
 import { proxySetCookie } from "../../utils/cookies.ts";
 import { getCookies } from "std/http/mod.ts";
 import getBasketImages from "../../utils/product.ts";
-import {getHeaders} from "../../utils/transform.ts";
+import { getHeaders } from "../../utils/transform.ts";
 
 export interface Props {
   basketItems: BasketItems[];

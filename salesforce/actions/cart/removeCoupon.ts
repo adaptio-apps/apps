@@ -20,7 +20,6 @@ const action = async (
   const basketId = cookies[`basket_${siteId}`];
   const { couponItemId } = props;
 
-
   try {
     const response = await slc
       ["DELETE /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId/coupons/:couponItemId"](

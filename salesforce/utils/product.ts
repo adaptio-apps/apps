@@ -2,8 +2,6 @@ import { AppContext } from "../../salesforce/mod.ts";
 import { Basket } from "./types.ts";
 import getProducts from "./getProducts.ts";
 
-
-
 export const getBasketImages = async (
   basket: Basket,
   ids: string[],

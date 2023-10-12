@@ -5,6 +5,8 @@
 import * as $$$0 from "./loaders/cart.ts";
 import * as $$$1 from "./loaders/product/productDetailsPage.ts";
 import * as $$$2 from "./loaders/product/productList.ts";
+import * as $$$3 from "./loaders/product/productListingPage.ts";
+import * as $$$4 from "./loaders/product/suggestions.ts";
 import * as $$$$$$$$$0 from "./actions/cart/addCoupon.ts";
 import * as $$$$$$$$$1 from "./actions/cart/addItems.ts";
 import * as $$$$$$$$$2 from "./actions/cart/removeCoupon.ts";
@@ -16,6 +18,8 @@ const manifest = {
     "salesforce/loaders/cart.ts": $$$0,
     "salesforce/loaders/product/productDetailsPage.ts": $$$1,
     "salesforce/loaders/product/productList.ts": $$$2,
+    "salesforce/loaders/product/productListingPage.ts": $$$3,
+    "salesforce/loaders/product/suggestions.ts": $$$4,
   },
   "actions": {
     "salesforce/actions/cart/addCoupon.ts": $$$$$$$$$0,

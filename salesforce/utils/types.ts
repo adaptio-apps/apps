@@ -298,7 +298,7 @@ export interface ProductSearch {
   offset: number;
   total: number;
   // deno-lint-ignore no-explicit-any
-  data?:any;
+  data?: any;
 }
 
 export interface ProductSeachHits {
@@ -605,7 +605,20 @@ export interface SortingOption {
   id: string;
   label: string;
 }
-export interface BasketItems{
+export interface BasketItems {
   productId: string;
   quantity: number;
 }
+export interface SelectedRefinement{
+  key: string;
+  value: string;
+}
+export type Sort =
+  | "price-high-to-low"
+  | "price-low-to-high"
+  | "product-name-ascending"
+  | "product-name-descending"
+  | "brand"
+  | "most-popular"
+  | "top-sellers"
+  | "";

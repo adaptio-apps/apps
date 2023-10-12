@@ -61,7 +61,7 @@ const enqueue = <
 
 const state = {
   cart,
-  loading, 
+  loading,
   removeItem: enqueue("salesforce/actions/cart/removeItem.ts"),
   addItems: enqueue("salesforce/actions/cart/addItems.ts"),
   updateItem: enqueue("salesforce/actions/cart/updateItem.ts"),
