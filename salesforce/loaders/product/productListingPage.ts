@@ -110,7 +110,6 @@ export default async function loader(
     offset,
   } = searchArgsOf(props, url);
 
-  const { categoryID, pmid, price } = props;
 
   const refine: string[] = [];
 
