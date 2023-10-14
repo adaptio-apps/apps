@@ -5,7 +5,7 @@ import { fetchAPI } from "../../../utils/fetch.ts";
 import { toProductPage } from "../../utils/transform.ts";
 import type { ProductDetailsPage } from "../../../commerce/types.ts";
 import type { RequestURLParam } from "../../../website/functions/requestToParam.ts";
-import { getCookies } from "std/http/mod.ts";
+import { getSession } from "../../utils/session.ts";
 
 export interface Props {
   slug: RequestURLParam;
@@ -22,15 +22,12 @@ export default async function loader(
   ctx: AppContext,
 ): Promise<ProductDetailsPage | null> {
   const url = new URL(req.url);
-  const { siteId } = ctx;
+  const session = getSession(ctx);
 
-  const cookies = getCookies(req.headers);
-  const token = cookies[`token_${siteId}`];
   const { slug, id } = props;
 
   if (!slug) return null;
 
-  console.log("passou aqui");
 
   if (!id) {
     const getProductBySlug = await fetchProduct<ProductSearch>(
@@ -43,7 +40,7 @@ export default async function loader(
           refine_htype: "master",
         },
       ),
-      token,
+      session.token!,
     );
 
     if (getProductBySlug.limit == 0) return null;
@@ -55,7 +52,7 @@ export default async function loader(
         .productId(
           getProductBySlug.hits[0].productId,
         ),
-      token,
+      session.token!,
     );
 
     return {
@@ -71,7 +68,7 @@ export default async function loader(
         id,
         { allImages: true },
       ),
-    token,
+    session.token!,
   );
 
   const newProduct = toProductPage(getProductById, url.origin);

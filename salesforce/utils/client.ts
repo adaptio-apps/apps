@@ -5,6 +5,7 @@ import {
   ProductSearch,
   Sort,
   TokenBaseSalesforce,
+  Suggestions,
 } from "./types.ts";
 
 export interface SalesforceClient {
@@ -123,7 +124,7 @@ export interface SalesforceClient {
 
   "GET /search/shopper-search/v1/organizations/:organizationId/search-suggestions":
     {
-      response: ProductSearch;
+      response: Suggestions;
       searchParams: {
         siteId: string;
         q?: string;

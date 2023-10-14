@@ -1,11 +1,14 @@
 // deno-lint-ignore-file
 import { slugfy } from "./utils.ts";
 import type {
+  BrandSuggestions,
+  CategorySuggestions,
   ImageGroups,
   ProductBaseSalesforce,
   ProductSeachHits,
   ProductSearch,
   ProductSearchRefinments,
+  ProductSuggestions,
   SelectedRefinement,
   Variants,
   VariationAttributes,
@@ -18,8 +21,9 @@ import type {
   ProductDetailsPage,
   ProductGroup,
   PropertyValue,
+  Suggestion,
 } from "deco-sites/std/commerce/types.ts";
-import type { ProductListingPage } from "../../commerce/types.ts";
+import type { ProductListingPage, Search } from "../../commerce/types.ts";
 
 type SalesforceProduct =
   | ProductBaseSalesforce
@@ -87,6 +91,112 @@ export const toProductList = (
           lowPrice: price,
           offerCount: offers.length,
           offers,
+        },
+      };
+    },
+  );
+};
+
+export const toProductSuggestions = (
+  suggestions: ProductSuggestions,
+  baseURL: string,
+): Product[] => {
+  return suggestions.products.map(
+    ({
+      productId,
+      productName,
+      currency,
+      price,
+    }) => {
+      return {
+        "@type": "Product",
+        id: productId,
+        productID: productId,
+        url: getProductGroupURL(
+          baseURL,
+          productName,
+          productId,
+        ).href,
+        image: [
+          {
+            "@type": "ImageObject",
+            alternateName: "",
+            url: "",
+          },
+        ],
+        name: productName,
+        sku: productId ?? "",
+        offers: {
+          "@type": "AggregateOffer",
+          priceCurrency: currency,
+          highPrice: price,
+          lowPrice: price,
+          offerCount: 0,
+          offers: [],
+        },
+      };
+    },
+  );
+};
+
+export const toSearchSuggestions = (
+  searchPhrase: string,
+  suggestions: ProductSuggestions,
+  hitsCount: number,
+): Search[] => {
+  /*   const facets = suggestions.suggestedTerms.map((term) =>
+    Object.entries(term).map(([key, values]) => ({
+      values: values.map((v: { value: string }) => v.value),
+      key,
+    }))
+  ); */
+
+  return suggestions.suggestedTerms.map(({ terms, originalTerm }) => {
+    return {
+      term: originalTerm,
+      hits: hitsCount,
+      href: "",
+      facets: [],
+    };
+  });
+};
+
+export const toProductSuggestionsdois = (
+  suggestions: ProductSuggestions,
+  baseURL: string,
+): Product[] => {
+  return suggestions.products.map(
+    ({
+      productId,
+      productName,
+      currency,
+      price,
+    }) => {
+      return {
+        "@type": "Product",
+        id: productId,
+        productID: productId,
+        url: getProductGroupURL(
+          baseURL,
+          productName,
+          productId,
+        ).href,
+        image: [
+          {
+            "@type": "ImageObject",
+            alternateName: "",
+            url: "",
+          },
+        ],
+        name: productName,
+        sku: productId ?? "",
+        offers: {
+          "@type": "AggregateOffer",
+          priceCurrency: currency,
+          highPrice: price,
+          lowPrice: price,
+          offerCount: 0,
+          offers: [],
         },
       };
     },
@@ -448,14 +558,20 @@ export const toFilters = (
           ? currentFilters.filter((x) => x !== value)
           : [...currentFilters, value];
 
-        const params =  new URLSearchParams(url.searchParams);
-
+        const params = new URLSearchParams(url.searchParams);
+        params.set("filter", newFilters.join("/"));
+        console.log("params", params);
         return {
           value,
           label,
           quantity,
           selected,
-          url: `?${filtersToSearchParams([{ key: label, value: value }], params)}`,
+          url: `?${
+            filtersToSearchParams(
+              [{ key: f.attributeId, value: value }],
+              params,
+            )
+          }`,
         };
       },
     ),

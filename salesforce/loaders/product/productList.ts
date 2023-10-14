@@ -9,8 +9,7 @@ import { fetchAPI } from "../../../utils/fetch.ts";
 import type { Product } from "../../../commerce/types.ts";
 import { toProductList } from "../../utils/transform.ts";
 import { toPriceRange, toRefineParams } from "../../utils/utils.ts";
-import { getCookies } from "std/http/mod.ts";
-
+import { getSession } from "../../utils/session.ts";
 /**
  * @title Salesforce - Product List
  */
@@ -76,31 +75,9 @@ export default async function loader(
   req: Request,
   ctx: AppContext,
 ): Promise<Product[] | null> {
-  const { siteId } = ctx;
+  const session = getSession(ctx);
+  console.log("session", session);
 
-  const cookies = getCookies(req.headers);
-  const token = cookies[`token_${siteId}`];
-  if (!token) {
-    console.log(
-      "esse aqui é o req do product lisr depois que chamou o middleware e salvou o cookie",
-      req.headers,
-    );
-    console.log(
-      "chegou aqui mas não encontrou o token no cookie ainda",
-      cookies,
-    );
-  }
-
-  if (token) {
-    console.log(
-      "esse aqui é o req do product list com o cookie na segunda requisição",
-      req.headers,
-    );
-    console.log(
-      "esses são os cookies da segunda requisição",
-      cookies,
-    );
-  }
   const url = new URL(req.url);
   const { categoryID, pmid, sort, limit, q, price } = props;
   const refineParams = toRefineParams(props.extraParams);
@@ -119,7 +96,7 @@ export default async function loader(
         ...refineParams,
       },
     ),
-    token,
+    session.token!,
   );
 
   if (getProductBySlug.total == 0) return null;

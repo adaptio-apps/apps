@@ -556,11 +556,9 @@ export interface GiftCertificateItem {
   shipmentId: string;
 }
 
-export interface Segment {
-  token: string | null;
-  basketId: string | null;
-  refresh_token: string | null;
-  itemId: string | null;
+export interface Session {
+  token: string;
+  basketId: string;
 }
 export interface TokenBaseSalesforce {
   access_token: string;
@@ -609,7 +607,7 @@ export interface BasketItems {
   productId: string;
   quantity: number;
 }
-export interface SelectedRefinement{
+export interface SelectedRefinement {
   key: string;
   value: string;
 }
@@ -622,3 +620,36 @@ export type Sort =
   | "most-popular"
   | "top-sellers"
   | "";
+
+export interface Product {
+  currency: string;
+  price: number;
+  productId: string;
+  productName: string;
+}
+
+export interface BrandSuggestions {
+  suggestedPhrases: SuggestedPhrase[];
+  suggestedTerms: SuggestedTerm[];
+}
+
+export interface Suggestions {
+  brandSuggestions: BrandSuggestions;
+  categorySuggestions: CategorySuggestions;
+  productSuggestions: ProductSuggestions;
+  searchPhrase: string;
+}
+
+export interface SuggestedOriginalTerm {
+  originalTerm: string;
+}
+
+export interface CategorySuggestions {
+  suggestedTerms: SuggestedOriginalTerm[];
+}
+
+export interface ProductSuggestions {
+  products: Product[];
+  suggestedPhrases: SuggestedPhrase[];
+  suggestedTerms: SuggestedTerm[];
+}

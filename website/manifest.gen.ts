@@ -18,22 +18,22 @@ import * as $$$$2 from "./handlers/redirect.ts";
 import * as $$$$3 from "./handlers/router.ts";
 import * as $$$$4 from "./handlers/sitemap.ts";
 import * as $$$$$0 from "./pages/Page.tsx";
-import * as $$$$$$0 from "./sections/Rendering/Deferred.tsx";
-import * as $$$$$$1 from "./sections/Seo/Seo.tsx";
-import * as $$$$$$2 from "./sections/Analytics/Analytics.tsx";
-import * as $$$$$$$0 from "./matchers/date.ts";
-import * as $$$$$$$1 from "./matchers/environment.ts";
-import * as $$$$$$$2 from "./matchers/site.ts";
-import * as $$$$$$$3 from "./matchers/location.ts";
-import * as $$$$$$$4 from "./matchers/cookie.ts";
-import * as $$$$$$$5 from "./matchers/random.ts";
-import * as $$$$$$$6 from "./matchers/multi.ts";
-import * as $$$$$$$7 from "./matchers/never.ts";
-import * as $$$$$$$8 from "./matchers/negate.ts";
-import * as $$$$$$$9 from "./matchers/cron.ts";
-import * as $$$$$$$10 from "./matchers/device.ts";
-import * as $$$$$$$11 from "./matchers/host.ts";
-import * as $$$$$$$12 from "./matchers/always.ts";
+import * as $$$$$$0 from "./sections/Analytics/Analytics.tsx";
+import * as $$$$$$1 from "./sections/Rendering/Deferred.tsx";
+import * as $$$$$$2 from "./sections/Seo/Seo.tsx";
+import * as $$$$$$$0 from "./matchers/always.ts";
+import * as $$$$$$$1 from "./matchers/cookie.ts";
+import * as $$$$$$$2 from "./matchers/cron.ts";
+import * as $$$$$$$3 from "./matchers/date.ts";
+import * as $$$$$$$4 from "./matchers/device.ts";
+import * as $$$$$$$5 from "./matchers/environment.ts";
+import * as $$$$$$$6 from "./matchers/host.ts";
+import * as $$$$$$$7 from "./matchers/location.ts";
+import * as $$$$$$$8 from "./matchers/multi.ts";
+import * as $$$$$$$9 from "./matchers/negate.ts";
+import * as $$$$$$$10 from "./matchers/never.ts";
+import * as $$$$$$$11 from "./matchers/random.ts";
+import * as $$$$$$$12 from "./matchers/site.ts";
 import * as $$$$$$$13 from "./matchers/userAgent.ts";
 import * as $$$$$$$$0 from "./flags/audience.ts";
 import * as $$$$$$$$1 from "./flags/everyone.ts";
@@ -70,9 +70,9 @@ const manifest = {
     "website/pages/Page.tsx": $$$$$0,
   },
   "sections": {
-    "website/sections/Analytics/Analytics.tsx": $$$$$$2,
-    "website/sections/Rendering/Deferred.tsx": $$$$$$0,
-    "website/sections/Seo/Seo.tsx": $$$$$$1,
+    "website/sections/Analytics/Analytics.tsx": $$$$$$0,
+    "website/sections/Rendering/Deferred.tsx": $$$$$$1,
+    "website/sections/Seo/Seo.tsx": $$$$$$2,
   },
   "matchers": {
     "website/matchers/always.ts": $$$$$$$0,

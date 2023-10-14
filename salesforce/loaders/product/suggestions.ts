@@ -1,7 +1,10 @@
 import { AppContext } from "../../mod.ts";
-import type { Product } from "../../../commerce/types.ts";
-import { getHeaders, toProductList } from "../../utils/transform.ts";
-import { getCookies } from "std/http/mod.ts";
+import type { Suggestion } from "../../../commerce/types.ts";
+import {
+  toProductSuggestions,
+  toSearchSuggestions,
+} from "../../utils/transform.ts";
+import { getSession, getSessionHeaders } from "../../utils/session.ts";
 
 /**
  * @title Salesforce - suggestions
@@ -11,7 +14,7 @@ export interface Props {
    * @title Query
    * @description Keyphase of the collection.
    */
-  q?: string;
+  query?: string;
 
   /**
    * @description Maximum records to retrieve per request, not to exceed 50. Defaults to 25.
@@ -28,29 +31,38 @@ export default async function loader(
   props: Props,
   req: Request,
   ctx: AppContext,
-): Promise<Product[] | null> {
+): Promise<Suggestion | null> {
   const { slc, organizationId, siteId } = ctx;
 
-  const cookies = getCookies(req.headers);
-  const token = cookies[`token_${siteId}`];
+  const session = getSession(ctx);
+  console.log('s')
 
   const url = new URL(req.url);
-  const { limit, q } = props;
-
+  const { limit } = props;
+  const query = props.query ?? url.searchParams.get("query") ?? "";
   const response = await slc
     ["GET /search/shopper-search/v1/organizations/:organizationId/search-suggestions"](
       {
         organizationId,
         siteId: siteId,
-        q: q,
+        q: query,
         limit: limit,
       },
       {
-        headers: getHeaders(token),
+        headers: getSessionHeaders(session),
       },
     );
 
-  const getProductByCategory = await response.json();
+  const suggestions = await response.json();
 
-  return toProductList(getProductByCategory, url.origin);
+  const products = toProductSuggestions(
+    suggestions.productSuggestions,
+    url.origin,
+  );
+  const searches = toSearchSuggestions(
+    suggestions.searchPhrase,
+    suggestions.productSuggestions,
+    products.length,
+  );
+  return { searches, products };
 }

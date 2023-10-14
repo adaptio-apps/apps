@@ -1,10 +1,12 @@
 import { PricingRange, RefineParams, Sort } from "../../utils/types.ts";
 import { AppContext } from "../../mod.ts";
 import type { ProductListingPage } from "../../../commerce/types.ts";
-import { getHeaders, toFilters, toProductHit } from "../../utils/transform.ts";
-import { toPriceRange } from "../../utils/utils.ts";
-import { getCookies } from "std/http/mod.ts";
-
+import {
+  filtersFromURL,
+  toFilters,
+  toProductHit,
+} from "../../utils/transform.ts";
+import { getSession, getSessionHeaders } from "../../utils/session.ts";
 /**
  * @title Salesforce - Product List
  */
@@ -53,7 +55,6 @@ export interface Props {
   page?: number;
 }
 
-
 const sortOptions = [
   { value: "", label: "relevance:desc" },
   { value: "price:desc", label: "price:desc" },
@@ -71,14 +72,14 @@ const searchArgsOf = (props: Props, url: URL) => {
   const currentPageoffset = 1;
   const page = props.page ??
       url.searchParams.get("page")
-        ? Number(url.searchParams.get("page")) - currentPageoffset
-        : 0
-    const offset = page * limit;
-    
+    ? Number(url.searchParams.get("page")) - currentPageoffset
+    : 0;
+  const offset = page * limit;
+
   const sort = (url.searchParams.get("sort") as Sort) ??
     props.sort ??
     sortOptions[0].value;
-  
+
   return {
     query,
     page,
@@ -98,11 +99,10 @@ export default async function loader(
 ): Promise<ProductListingPage | null> {
   const { slc, organizationId, siteId } = ctx;
 
-  const cookies = getCookies(req.headers);
-  const token = cookies[`token_${siteId}`];
+  const session = getSession(ctx);
 
   const url = new URL(req.url);
-  const{
+  const {
     query,
     page,
     sort,
@@ -110,59 +110,64 @@ export default async function loader(
     offset,
   } = searchArgsOf(props, url);
 
-
   const { categoryID, pmid, price } = props;
 
+  const refine: string[] = [];
 
-  const refine: Array<string> = [];
+  const refinements = filtersFromURL(url);
 
-  refine.push(`cgid:${categoryID}`);
-  price ?? refine.push(`price:${toPriceRange(price)}`);
-  pmid ?? refine.push(`pmid:${pmid}`);
-  refine.push(`htype:master|product`);
+  refinements.map((ref) => {
+    refine.push(`${ref.key}=${ref.value}&`);
+  });
 
+  console.log("refine", refine);
   const response = await slc
     ["GET /search/shopper-search/v1/organizations/:organizationId/product-search"](
       {
         organizationId,
         siteId,
-        refine,
+        refine: refine,
         q: query,
         sort,
         limit,
-        offset
+        offset,
       },
       {
-        headers: getHeaders(token),
+        headers: getSessionHeaders(session),
       },
     );
 
-  const getProductByCategory = await response.json();
+  const searchResult = await response.json();
 
-  console.log("getProductByCategory", getProductByCategory);
+  console.log("searchResult", searchResult);
 
-  const products = getProductByCategory.hits?.map((items) =>
+  const products = searchResult.hits?.map((items) =>
     toProductHit(items, url.origin)
   );
-  const currentFilters = url.searchParams.get("f")?.split("/") ?? [];
+
+  console.log(refinements);
+
+  const currentFilters = url.searchParams.get("filter")?.split("/") ?? [];
+
+  console.log("currentFilters", currentFilters);
 
   const filters = toFilters(
-    getProductByCategory.refinements,
+    searchResult.refinements,
     currentFilters,
     url,
   );
 
-  const hasNextPage = (offset + limit) < getProductByCategory.total ;
-  const hasPreviousPage = offset > 0  ;
+  const hasNextPage = (offset + limit) < searchResult.total;
+  const hasPreviousPage = offset > 0;
   const nextPage = new URLSearchParams(url.searchParams);
   const previousPage = new URLSearchParams(url.searchParams);
 
   if (hasNextPage) {
-    nextPage.set("page", (page +2).toString());
+    nextPage.set("page", (page + 2).toString());
   }
 
   if (hasPreviousPage) {
-    previousPage.set("page", (page).toString());
+    previousPage.set("page", page.toString());
   }
 
   return {
@@ -177,7 +182,7 @@ export default async function loader(
     pageInfo: {
       nextPage: hasNextPage ? `?${nextPage.toString()}` : undefined,
       previousPage: hasPreviousPage ? `?${previousPage.toString()}` : undefined,
-      currentPage: page  ,
+      currentPage: page,
     },
     sortOptions: [],
   };
