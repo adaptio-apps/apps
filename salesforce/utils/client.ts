@@ -4,8 +4,8 @@ import {
   DynamicAttributes,
   ProductSearch,
   Sort,
-  TokenBaseSalesforce,
   Suggestions,
+  TokenBaseSalesforce,
 } from "./types.ts";
 
 export interface SalesforceClient {

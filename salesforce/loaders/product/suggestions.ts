@@ -35,7 +35,7 @@ export default async function loader(
   const { slc, organizationId, siteId } = ctx;
 
   const session = getSession(ctx);
-  console.log('s')
+  console.log("s");
 
   const url = new URL(req.url);
   const { limit } = props;

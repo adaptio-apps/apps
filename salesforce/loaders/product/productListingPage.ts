@@ -110,7 +110,6 @@ export default async function loader(
     offset,
   } = searchArgsOf(props, url);
 
-
   const refine: string[] = [];
 
   const refinements = filtersFromURL(url);

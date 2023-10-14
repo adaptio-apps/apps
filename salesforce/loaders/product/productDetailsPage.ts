@@ -28,7 +28,6 @@ export default async function loader(
 
   if (!slug) return null;
 
-
   if (!id) {
     const getProductBySlug = await fetchProduct<ProductSearch>(
       paths(
