@@ -7,12 +7,11 @@ export const SESSION_COOKIE_NAME = "salesforce_session";
 
 export const SESSION = Symbol("session");
 
-export const getSession = (ctx: AppContext): Partial<Session> =>
-  ctx.bag?.get(SESSION);
+export const getSession = (ctx: AppContext): Session => ctx.bag?.get(SESSION);
 
 export const setSession = (
   ctx: AppContext,
-  session: Partial<Session>,
+  session: Session,
 ) => {
   ctx.bag?.set(SESSION, session);
 };
@@ -29,25 +28,24 @@ export const parse = (cookie: string) => JSON.parse(atob(cookie));
 export const serialize = ({
   token,
   basketId,
-}: Partial<Session>) =>
+}: Session) =>
   btoa(JSON.stringify({
     token,
     basketId,
   }));
 
-export const getSessionCookie = (req: Request): Partial<Session> => {
+export const getSessionCookie = (req: Request): Session => {
   const cookies = getCookies(req.headers);
   const cookie = cookies[SESSION_COOKIE_NAME];
   console.log(cookie);
-  const partial = cookie && parse(cookie);
-  console.log("partial", partial);
+  const session = cookie && parse(cookie);
   return {
-    ...partial,
+    ...session,
   };
 };
 
 export const getSessionHeaders = (
-  session: Partial<Session>,
+  session: Session,
   headers?: Headers,
 ) => {
   const h = new Headers(headers);
