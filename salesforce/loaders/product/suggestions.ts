@@ -4,7 +4,7 @@ import {
   toProductSuggestions,
   toSearchSuggestions,
 } from "../../utils/transform.ts";
-import { getSession, getSessionHeaders } from "../../utils/session.ts";
+import { getSession } from "../../utils/session.ts";
 
 /**
  * @title Salesforce - suggestions
@@ -35,7 +35,7 @@ export default async function loader(
   const { slc, organizationId, siteId } = ctx;
 
   const session = getSession(ctx);
-  console.log("s");
+  console.log("s", session);
 
   const url = new URL(req.url);
   const { limit } = props;
@@ -49,7 +49,9 @@ export default async function loader(
         limit: limit,
       },
       {
-        headers: getSessionHeaders(session),
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+        },
       },
     );
 
@@ -64,5 +66,7 @@ export default async function loader(
     suggestions.productSuggestions,
     products.length,
   );
+
+  console.log(searches, products);
   return { searches, products };
 }

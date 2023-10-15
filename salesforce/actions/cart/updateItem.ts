@@ -1,6 +1,6 @@
 import { AppContext } from "../../mod.ts";
 import type { Basket } from "../../utils/types.ts";
-import { getCookies } from "std/http/mod.ts";
+import { getSession } from "../../utils/session.ts";
 import { proxySetCookie } from "../../utils/cookies.ts";
 import getBasketImages from "../../utils/product.ts";
 import { getHeaders } from "../../utils/transform.ts";
@@ -15,9 +15,7 @@ const action = async (
   ctx: AppContext,
 ): Promise<Basket> => {
   const { slc, organizationId, siteId } = ctx;
-  const cookies = getCookies(req.headers);
-  const token = cookies[`token_${siteId}`];
-  const basketId = cookies[`basket_${siteId}`];
+  const session = getSession(ctx);
 
   const { itemId, quantity } = props;
   try {
@@ -28,13 +26,13 @@ const action = async (
       [`${path} /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId/items/:itemId`](
         {
           organizationId,
-          basketId,
+          basketId: session.basketId!,
           itemId,
           siteId: siteId,
         },
         {
           body: body,
-          headers: getHeaders(token),
+          headers: getHeaders(session.token!),
         },
       );
 
@@ -50,7 +48,7 @@ const action = async (
       return basket;
     }
 
-    return await getBasketImages(basket, productsBasketSku, req, ctx);
+    return await getBasketImages(basket, productsBasketSku, ctx);
   } catch (error) {
     console.error(error);
 

@@ -1,5 +1,5 @@
 import { AppContext } from "../mod.ts";
-import { getCookies } from "std/http/mod.ts";
+import { getSession } from "./session.ts";
 import { ProductSearch } from "./types.ts";
 
 export interface Props {
@@ -9,16 +9,14 @@ export interface Props {
 
 export default async function getProducts(
   props: Props,
-  req: Request,
   ctx: AppContext,
 ): Promise<null | ProductSearch> {
   const { slc, organizationId, siteId } = ctx;
 
-  const cookies = getCookies(req.headers);
-  const token = cookies[`token_${siteId}`];
-
+  const session = getSession(ctx);
+  console.log("esse é o do getProducts essa bosta", session);
   const headers = new Headers({
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${session.token}`,
   });
 
   const { select, ids } = props;

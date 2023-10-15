@@ -6,7 +6,7 @@ import {
   toFilters,
   toProductHit,
 } from "../../utils/transform.ts";
-import { getSession, getSessionHeaders } from "../../utils/session.ts";
+import { getSession } from "../../utils/session.ts";
 /**
  * @title Salesforce - Product List
  */
@@ -131,7 +131,9 @@ export default async function loader(
         offset,
       },
       {
-        headers: getSessionHeaders(session),
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+        },
       },
     );
 

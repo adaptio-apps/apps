@@ -5,12 +5,10 @@ import getProducts from "./getProducts.ts";
 export const getBasketImages = async (
   basket: Basket,
   ids: string[],
-  req: Request,
   ctx: AppContext,
 ): Promise<Basket> => {
   const productImages = await getProducts(
     { ids: ids, select: "(data.(imageGroups.(**),id))" },
-    req,
     ctx,
   );
 

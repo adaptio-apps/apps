@@ -12,10 +12,9 @@ export const getSession = (ctx: AppContext): Partial<Session> =>
 
 export const setSession = (
   ctx: AppContext,
-  session: Session,
+  session: Partial<Session>,
 ) => {
-  console.log("chegou aqui 1");
-  return ctx.bag?.set(SESSION, session);
+  ctx.bag?.set(SESSION, session);
 };
 
 /**
@@ -39,8 +38,9 @@ export const serialize = ({
 export const getSessionCookie = (req: Request): Partial<Session> => {
   const cookies = getCookies(req.headers);
   const cookie = cookies[SESSION_COOKIE_NAME];
+  console.log(cookie);
   const partial = cookie && parse(cookie);
-
+  console.log("partial", partial);
   return {
     ...partial,
   };
@@ -51,9 +51,9 @@ export const getSessionHeaders = (
   headers?: Headers,
 ) => {
   const h = new Headers(headers);
-
-  h.set("Authorizathion", session.token!);
-
+  console.log(session);
+  h.set("Authorizathion", `Bearer ${session.token!}`);
+  console.log("porra do header", h);
   return h;
 };
 

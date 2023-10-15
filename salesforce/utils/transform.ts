@@ -10,6 +10,8 @@ import type {
   ProductSearchRefinments,
   ProductSuggestions,
   SelectedRefinement,
+  SuggestedTerm,
+  SuggestionTerm,
   Variants,
   VariationAttributes,
 } from "./types.ts";
@@ -121,7 +123,11 @@ export const toProductSuggestions = (
           {
             "@type": "ImageObject",
             alternateName: "",
-            url: "",
+            url: getProductGroupURL(
+              baseURL,
+              productName,
+              productId,
+            ).href,
           },
         ],
         name: productName,
@@ -138,25 +144,37 @@ export const toProductSuggestions = (
     },
   );
 };
-
+interface Facets {
+  key: string;
+  values: string[];
+}
 export const toSearchSuggestions = (
   searchPhrase: string,
   suggestions: ProductSuggestions,
   hitsCount: number,
 ): Search[] => {
-  /*   const facets = suggestions.suggestedTerms.map((term) =>
-    Object.entries(term).map(([key, values]) => ({
-      values: values.map((v: { value: string }) => v.value),
-      key,
-    }))
-  ); */
+  console.log("suggestions.suggestedTerms", suggestions.suggestedTerms);
 
   return suggestions.suggestedTerms.map(({ terms, originalTerm }) => {
+    const facets: Facets[] = [];
+
+    suggestions.suggestedTerms.forEach((term) => {
+      if (term.originalTerm && Array.isArray(term.terms)) {
+        const valuesArray = term.terms.map((subterm) => subterm.value);
+        facets.push({
+          key: term.originalTerm,
+          values: valuesArray,
+        });
+      }
+    });
+
+    console.log("facets", facets);
+
     return {
       term: originalTerm,
       hits: hitsCount,
       href: "",
-      facets: [],
+      facets,
     };
   });
 };

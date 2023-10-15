@@ -22,7 +22,6 @@ const handleAuthAndBasket = async (
         token: token.access_token,
         basketId: basket.basketId,
       };
-      setSession(ctx, session);
 
       setSessionCookie(
         session,
@@ -58,6 +57,7 @@ export const middleware = async (
   if (!session.token) {
     await handleAuthAndBasket(ctx, "client_credentials");
   }
+  setSession(ctx, session);
 
   return await ctx.next!();
 };

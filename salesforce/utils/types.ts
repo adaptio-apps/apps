@@ -653,3 +653,8 @@ export interface ProductSuggestions {
   suggestedPhrases: SuggestedPhrase[];
   suggestedTerms: SuggestedTerm[];
 }
+
+export interface SuggestionTerm {
+  originalTerm: string;
+  value: string;
+}
