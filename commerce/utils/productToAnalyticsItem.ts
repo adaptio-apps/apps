@@ -32,7 +32,7 @@ export const mapProductToAnalyticsItem = (
 ): AnalyticsItem => {
   const { name, productID, isVariantOf } = product;
   const index = Math.max(
-    product.isVariantOf?.hasVariant.findIndex((v) => v.url === product.url) ||
+    product.isVariantOf?.hasVariant?.findIndex((v) => v.url === product.url) ||
       0,
     0,
   );

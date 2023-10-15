@@ -1,3 +1,4 @@
+// deno-lint-ignore-file
 import { AppContext } from "../../mod.ts";
 import type { Suggestion } from "../../../commerce/types.ts";
 import {
@@ -5,6 +6,8 @@ import {
   toSearchSuggestions,
 } from "../../utils/transform.ts";
 import { getSession } from "../../utils/session.ts";
+import { getImages } from "../../utils/product.ts";
+import { ProductSearch } from "../../utils/types.ts";
 
 /**
  * @title Salesforce - suggestions
@@ -22,6 +25,8 @@ export interface Props {
    * @max 50
    */
   limit: number;
+
+  allImages: boolean;
 }
 
 /**
@@ -35,10 +40,9 @@ export default async function loader(
   const { slc, organizationId, siteId } = ctx;
 
   const session = getSession(ctx);
-  console.log("s", session);
 
   const url = new URL(req.url);
-  const { limit } = props;
+  const { limit, allImages } = props;
   const query = props.query ?? url.searchParams.get("query") ?? "";
   const response = await slc
     ["GET /search/shopper-search/v1/organizations/:organizationId/search-suggestions"](
@@ -56,10 +60,22 @@ export default async function loader(
     );
 
   const suggestions = await response.json();
-  
+  let productImages: any;
+  if (allImages) {
+    const productsIdsSuggestions: string[] = suggestions.productSuggestions
+      ?.products.map(
+        (item: { productId: string }) => {
+          return item.productId;
+        },
+      );
+
+    productImages = await getImages(productsIdsSuggestions, ctx);
+  }
+
   const products = toProductSuggestions(
     suggestions.productSuggestions,
     url.origin,
+    productImages,
   );
   const searches = toSearchSuggestions(
     suggestions.searchPhrase,

@@ -290,7 +290,7 @@ export interface Account {
 
 export interface ProductSearch {
   limit: number;
-  hits: ProductSeachHits[];
+  hits: ProductSearchHits[];
   query: string;
   refinements: ProductSearchRefinments[];
   searchPhraseSuggestions: ProductSearchSuggestions;
@@ -301,7 +301,7 @@ export interface ProductSearch {
   data?: any;
 }
 
-export interface ProductSeachHits {
+export interface ProductSearchHits {
   currency: "USD" | "BRL";
   hitType: "product" | "master" | "set" | "bundle";
   image: Images;
@@ -657,4 +657,15 @@ export interface ProductSuggestions {
 export interface SuggestionTerm {
   originalTerm: string;
   value: string;
+}
+
+export interface productSearchAddictionalInfo {
+  name: string;
+  id: string;
+  primaryCategoryId: string;
+  pageDescription: string;
+  imageGroups: ImageGroups[];
+  variants: Variants[];
+  brand:string;
+  productId:string;
 }

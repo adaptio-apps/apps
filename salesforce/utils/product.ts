@@ -1,5 +1,5 @@
 import { AppContext } from "../../salesforce/mod.ts";
-import { Basket } from "./types.ts";
+import { Basket, ProductSearch } from "./types.ts";
 import getProducts from "./getProducts.ts";
 
 export const getBasketImages = async (
@@ -31,6 +31,19 @@ export const getBasketImages = async (
       };
     }),
   };
+};
+
+export const getImages = async (
+  ids: string[],
+  ctx: AppContext,
+): Promise<ProductSearch | null> => {
+  const productImages = await getProducts(
+    { ids: ids, select: "(data.(imageGroups.(**),id))" },
+    ctx,
+  );
+  if (productImages) return productImages;
+
+  return null;
 };
 
 export default getBasketImages;

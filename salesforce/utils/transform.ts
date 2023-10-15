@@ -5,8 +5,9 @@ import type {
   CategorySuggestions,
   ImageGroups,
   ProductBaseSalesforce,
-  ProductSeachHits,
   ProductSearch,
+  productSearchAddictionalInfo,
+  ProductSearchHits,
   ProductSearchRefinments,
   ProductSuggestions,
   SelectedRefinement,
@@ -29,7 +30,7 @@ import type { ProductListingPage, Search } from "../../commerce/types.ts";
 
 type SalesforceProduct =
   | ProductBaseSalesforce
-  | ProductSeachHits;
+  | ProductSearchHits;
 
 export const toProductPage = (
   product: ProductBaseSalesforce,
@@ -47,7 +48,7 @@ export const toProductPage = (
         baseURL,
         product.name,
         product.id,
-        variantId ?? '',
+        variantId ?? "",
       ).href,
     },
   }
@@ -105,6 +106,7 @@ export const toProductList = (
 export const toProductSuggestions = (
   suggestions: ProductSuggestions,
   baseURL: string,
+  imagemSearch?: ProductSearch,
 ): Product[] => {
   return suggestions.products.map(
     ({
@@ -113,6 +115,12 @@ export const toProductSuggestions = (
       currency,
       price,
     }) => {
+      const offers = toOffer(price, false, 0);
+      console.log("imagemSearch", imagemSearch);
+      const productImage = imagemSearch?.data.find((image: { id: string }) =>
+        image.id === productId
+      );
+
       return {
         "@type": "Product",
         id: productId,
@@ -125,12 +133,8 @@ export const toProductSuggestions = (
         image: [
           {
             "@type": "ImageObject",
-            alternateName: "",
-            url: getProductGroupURL(
-              baseURL,
-              productName,
-              productId,
-            ).href,
+            alternateName: productImage?.imageGroups[0]?.images[0]?.alt,
+            url: productImage?.imageGroups[0]?.images[0]?.link,
           },
         ],
         name: productName,
@@ -141,7 +145,7 @@ export const toProductSuggestions = (
           highPrice: price,
           lowPrice: price,
           offerCount: 0,
-          offers: [],
+          offers: offers,
         },
       };
     },
@@ -156,7 +160,6 @@ export const toSearchSuggestions = (
   suggestions: ProductSuggestions,
   hitsCount: number,
 ): Search[] => {
-
   return suggestions.suggestedTerms.map(({ terms, originalTerm }) => {
     const facets: Facets[] = [];
 
@@ -170,7 +173,6 @@ export const toSearchSuggestions = (
       }
     });
 
-
     return {
       term: originalTerm,
       hits: hitsCount,
@@ -178,48 +180,6 @@ export const toSearchSuggestions = (
       facets,
     };
   });
-};
-
-export const toProductSuggestionsdois = (
-  suggestions: ProductSuggestions,
-  baseURL: string,
-): Product[] => {
-  return suggestions.products.map(
-    ({
-      productId,
-      productName,
-      currency,
-      price,
-    }) => {
-      return {
-        "@type": "Product",
-        id: productId,
-        productID: productId,
-        url: getProductGroupURL(
-          baseURL,
-          productName,
-          productId,
-        ).href,
-        image: [
-          {
-            "@type": "ImageObject",
-            alternateName: "",
-            url: "",
-          },
-        ],
-        name: productName,
-        sku: productId ?? "",
-        offers: {
-          "@type": "AggregateOffer",
-          priceCurrency: currency,
-          highPrice: price,
-          lowPrice: price,
-          offerCount: 0,
-          offers: [],
-        },
-      };
-    },
-  );
 };
 
 const toSEOTitle = ({ name, pageTitle, brand }: ProductBaseSalesforce) => {
@@ -322,15 +282,22 @@ export const toProduct = (
 };
 
 export const toProductHit = (
-  product: ProductSeachHits,
+  product: ProductSearchHits,
   baseURL: string,
+  addictionalInformation?: any,
 ): Product => {
   const {
     productId,
     productName,
     image,
     price,
+    orderable,
   } = product;
+  const offers = toOffer(price, orderable, orderable ? 10 : 0);
+
+  const isVariantOf = addictionalInformation?.variants?.length
+    ? toVariantProductHit(product, addictionalInformation, baseURL)
+    : undefined;
 
   return {
     "@type": "Product",
@@ -343,12 +310,21 @@ export const toProductHit = (
       product.variationAttributes,
       product,
     ),
+    isVariantOf,
     sku: productId,
     image: [{
       "@type": "ImageObject",
       url: image.link,
       alternateName: image.alt,
     }],
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: product.currency,
+      highPrice: product.price,
+      lowPrice: product.price,
+      offerCount: offers.length,
+      offers,
+    },
   };
 };
 
@@ -402,6 +378,52 @@ const toVariantProduct = (
   name: master.name,
   additionalProperty: toExtraAdditionalProperties(master),
   model: master.id,
+});
+
+const toVariantProductHit = (
+  master: ProductSearchHits,
+  variants: productSearchAddictionalInfo,
+  baseURL: string,
+): ProductGroup => ({
+  "@type": "ProductGroup",
+  productGroupID: variants?.id,
+  hasVariant: variants.variants.map((variant) => {
+    const offers = toVariantOffer(variant);
+    return {
+      "@type": "Product",
+      category: toCategory(variants?.primaryCategoryId),
+      productID: variant.productId,
+      url:
+        getProductURL(baseURL, variants?.name, variants?.id, variant.productId)
+          .href,
+      name: variants?.name,
+      description: variants?.pageDescription,
+      brand: {
+        "@type": "Brand",
+        name: variants?.brand,
+      },
+      sku: variant.productId,
+      gtin: variant.productId,
+      additionalProperty: toVariantAdditionalProperties(
+        variant.variationValues,
+        master.variationAttributes,
+      ),
+      image: toVariantImages(variants?.imageGroups, variant.variationValues),
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: master.currency,
+        highPrice: variant.price,
+        lowPrice: variant.price,
+        offerCount: offers.length,
+        offers,
+      },
+    };
+  }),
+  url: getProductURL(baseURL, variants?.name, variants?.id, variants.productId)
+    .href,
+  name: variants?.name,
+  additionalProperty: toExtraAdditionalProperties(master),
+  model: variants?.id,
 });
 
 const getProductGroupURL = (

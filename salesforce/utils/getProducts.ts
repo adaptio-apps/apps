@@ -14,7 +14,6 @@ export default async function getProducts(
   const { slc, organizationId, siteId } = ctx;
 
   const session = getSession(ctx);
-  console.log("esse é o do getProducts essa bosta", session);
   const headers = new Headers({
     Authorization: `Bearer ${session.token}`,
   });

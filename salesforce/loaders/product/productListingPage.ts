@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { PricingRange, RefineParams, Sort } from "../../utils/types.ts";
 import { AppContext } from "../../mod.ts";
 import type { ProductListingPage } from "../../../commerce/types.ts";
@@ -7,6 +8,7 @@ import {
   toProductHit,
 } from "../../utils/transform.ts";
 import { getSession } from "../../utils/session.ts";
+import getProducts from "../../utils/getProducts.ts";
 /**
  * @title Salesforce - Product List
  */
@@ -53,6 +55,7 @@ export interface Props {
    */
   limit: number;
   page?: number;
+  addictionalInformationAllowed: boolean;
 }
 
 const sortOptions = [
@@ -75,7 +78,6 @@ const searchArgsOf = (props: Props, url: URL) => {
     ? Number(url.searchParams.get("page")) - currentPageoffset
     : 0;
   const offset = page * limit;
-
   const sort = (url.searchParams.get("sort") as Sort) ??
     props.sort ??
     sortOptions[0].value;
@@ -100,6 +102,7 @@ export default async function loader(
   const { slc, organizationId, siteId } = ctx;
 
   const session = getSession(ctx);
+  const { addictionalInformationAllowed } = props;
 
   const url = new URL(req.url);
   const {
@@ -118,7 +121,6 @@ export default async function loader(
     refine.push(`${ref.key}=${ref.value}&`);
   });
 
-  console.log("refine", refine);
   const response = await slc
     ["GET /search/shopper-search/v1/organizations/:organizationId/product-search"](
       {
@@ -139,17 +141,30 @@ export default async function loader(
 
   const searchResult = await response.json();
 
-  console.log("searchResult", searchResult);
+  const ids = searchResult.hits?.map((items) => items.productId.toString());
+  let addictionalInformation: any;
 
+  if (addictionalInformationAllowed) {
+    addictionalInformation = await getProducts(
+      {
+        ids: ids,
+        select:
+          "(data.(name,productId,id,primaryCategoryId,pageDescription,brand,imageGroups,variants.(**)))",
+      },
+      ctx,
+    );
+  }
   const products = searchResult.hits?.map((items) =>
-    toProductHit(items, url.origin)
+    toProductHit(
+      items,
+      url.origin,
+      addictionalInformation?.data?.find((item: { id: string }) =>
+        item.id == items.productId
+      ),
+    )
   );
 
-  console.log(refinements);
-
   const currentFilters = url.searchParams.get("filter")?.split("/") ?? [];
-
-  console.log("currentFilters", currentFilters);
 
   const filters = toFilters(
     searchResult.refinements,

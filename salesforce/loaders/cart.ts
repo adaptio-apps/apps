@@ -13,11 +13,9 @@ export default async function loader(
   ctx: AppContext,
 ): Promise<Basket | null> {
   let session = getSession(ctx);
-  console.log("session no cart", session);
-  console.log("req no cart", req);
+
   if (!session) {
     session = getSessionCookie(req);
-    console.log("session no cart vindo do cookie", session);
   }
 
   const { basketId, token } = session;
