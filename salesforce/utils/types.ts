@@ -666,6 +666,6 @@ export interface productSearchAddictionalInfo {
   pageDescription: string;
   imageGroups: ImageGroups[];
   variants: Variants[];
-  brand:string;
-  productId:string;
+  brand: string;
+  productId: string;
 }
