@@ -56,7 +56,7 @@ export default async function loader(
     );
 
   const suggestions = await response.json();
-
+  
   const products = toProductSuggestions(
     suggestions.productSuggestions,
     url.origin,

@@ -70,8 +70,9 @@ export default async function loader(
     session.token!,
   );
 
-  const newProduct = toProductPage(getProductById, url.origin);
-  console.log(newProduct);
+  const variantId = url.searchParams.get("skuId") ?? "";
+
+  const newProduct = toProductPage(getProductById, url.origin, variantId);
 
   return newProduct;
 }

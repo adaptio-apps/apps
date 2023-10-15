@@ -76,7 +76,6 @@ export default async function loader(
   ctx: AppContext,
 ): Promise<Product[] | null> {
   const session = getSession(ctx);
-  console.log("session", session);
 
   const url = new URL(req.url);
   const { categoryID, pmid, sort, limit, q, price } = props;

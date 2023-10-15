@@ -45,7 +45,7 @@ const action = async (
     );
     proxySetCookie(response.headers, ctx.response.headers, req.url);
     if (!productsBasketSku) {
-      return basket;
+      return { ...basket, productItems: [] };
     }
 
     return await getBasketImages(basket, productsBasketSku, ctx);

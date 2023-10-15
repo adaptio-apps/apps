@@ -34,21 +34,24 @@ type SalesforceProduct =
 export const toProductPage = (
   product: ProductBaseSalesforce,
   baseURL: string,
-): ProductDetailsPage => ({
-  "@type": "ProductDetailsPage",
-  breadcrumbList: toBreadcrumbList(product, baseURL),
-  product: toProduct(product, baseURL),
-  seo: {
-    title: toSEOTitle(product),
-    description: product.pageDescription ?? product.shortDescription ?? "",
-    canonical: getProductURL(
-      baseURL,
-      product.name,
-      product.id,
-      product?.variants?.at(0)?.productId!,
-    ).href,
-  },
-});
+  variantId?: string,
+): ProductDetailsPage => (
+  {
+    "@type": "ProductDetailsPage",
+    breadcrumbList: toBreadcrumbList(product, baseURL),
+    product: toProduct(product, baseURL, variantId),
+    seo: {
+      title: toSEOTitle(product),
+      description: product.pageDescription ?? product.shortDescription ?? "",
+      canonical: getProductURL(
+        baseURL,
+        product.name,
+        product.id,
+        variantId ?? '',
+      ).href,
+    },
+  }
+);
 
 export const toProductList = (
   products: ProductSearch,
@@ -153,7 +156,6 @@ export const toSearchSuggestions = (
   suggestions: ProductSuggestions,
   hitsCount: number,
 ): Search[] => {
-  console.log("suggestions.suggestedTerms", suggestions.suggestedTerms);
 
   return suggestions.suggestedTerms.map(({ terms, originalTerm }) => {
     const facets: Facets[] = [];
@@ -168,7 +170,6 @@ export const toSearchSuggestions = (
       }
     });
 
-    console.log("facets", facets);
 
     return {
       term: originalTerm,
@@ -263,6 +264,7 @@ const toBreadcrumbList = (
 export const toProduct = (
   product: ProductBaseSalesforce,
   baseURL: string,
+  variantId?: string,
 ): Product => {
   const {
     primaryCategoryId,
@@ -284,7 +286,7 @@ export const toProduct = (
     "@type": "Product",
     category: toCategory(primaryCategoryId),
     productID: id,
-    url: getProductURL(baseURL, name, id, product.variants?.at(0)?.productId!)
+    url: getProductURL(baseURL, name, id, variantId ?? "")
       .href,
     name: name,
     description: pageDescription,
@@ -292,13 +294,13 @@ export const toProduct = (
       "@type": "Brand",
       name: brand,
     },
-    gtin: id,
+    gtin: variantId,
     additionalProperty: toAdditionalProperties(
       product.variationAttributes,
       product,
     ),
     isVariantOf,
-    sku: product.variants?.at(0)?.productId!,
+    sku: variantId || product.variants?.at(0)?.productId!,
     image: imageGroups
       .filter((obj) => !obj.variationAttributes && obj.viewType === "large")
       .flatMap((obj) =>
@@ -577,8 +579,6 @@ export const toFilters = (
           : [...currentFilters, value];
 
         const params = new URLSearchParams(url.searchParams);
-        params.set("filter", newFilters.join("/"));
-        console.log("params", params);
         return {
           value,
           label,

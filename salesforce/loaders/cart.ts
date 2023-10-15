@@ -1,8 +1,8 @@
 import { Basket, Images, ProductBaseSalesforce } from "../utils/types.ts";
 import { AppContext } from "../mod.ts";
 import { paths } from "../utils/paths.ts";
-import { getCookies } from "std/http/mod.ts";
 import { fetchAPI } from "../../utils/fetch.ts";
+import { getSession, getSessionCookie } from "../utils/session.ts";
 
 /**
  * @title Salesforce - Get Cart
@@ -12,19 +12,23 @@ export default async function loader(
   req: Request,
   ctx: AppContext,
 ): Promise<Basket | null> {
-  const token = getCookies(req.headers)[`token_${ctx.siteId}`];
-  const basketId = getCookies(req.headers)[`cart_${ctx.siteId}`];
+  let session = getSession(ctx);
+  console.log("session no cart", session);
+  console.log("req no cart", req);
+  if (!session) {
+    session = getSessionCookie(req);
+    console.log("session no cart vindo do cookie", session);
+  }
 
-  if (!token || !basketId) return null;
-
+  const { basketId, token } = session;
   const basket = (await fetchAPI<Basket>(
     paths(ctx)
       .checkout.shopper_baskets.v1.organizations._organizationId.baskets()
-      .basketId(basketId)._,
+      .basketId(basketId!)._,
     {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token!}`,
       },
     },
   )) as Basket;
@@ -35,12 +39,13 @@ export default async function loader(
       productItems: await Promise.all(
         basket.productItems.map(async (item) => ({
           ...item,
-          image: await fetchImagesAPI(ctx, item.productId, token),
+          image: await fetchImagesAPI(ctx, item.productId, token!),
         })),
       ),
     }
     : basket;
 
+  console.log(finalBasket);
   return {
     ...finalBasket,
     locale: ctx.locale ?? "",

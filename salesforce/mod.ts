@@ -9,6 +9,7 @@ import type { Account } from "./utils/types.ts";
 import { SalesforceClient } from "./utils/client.ts";
 import { createHttpClient } from "../utils/http.ts";
 import { middleware } from "./middleware.ts";
+import workflow from "../workflows/mod.ts";
 
 export type App = ReturnType<typeof Salesforce>;
 export type AppContext = AC<App>;
@@ -33,10 +34,12 @@ export default function Salesforce(
   });
 
   const state = { ...prop, slc };
-  const app: A<Manifest, typeof state> = {
+
+  const app: A<Manifest, typeof state, [ReturnType<typeof workflow>]> = {
     state,
     manifest,
     middleware,
+    dependencies: [workflow({})],
   };
 
   return app;
