@@ -123,7 +123,6 @@ export default async function loader(
 
   const refine: string[] = [];
 
-
   const categoryName = url.pathname.split("/");
   const seo: Seo = {
     title: "",

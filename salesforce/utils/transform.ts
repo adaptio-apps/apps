@@ -27,7 +27,12 @@ import type {
   PropertyValue,
   Suggestion,
 } from "deco-sites/std/commerce/types.ts";
-import type { FilterRange, FilterToggle, ProductListingPage, Search } from "../../commerce/types.ts";
+import type {
+  FilterRange,
+  FilterToggle,
+  ProductListingPage,
+  Search,
+} from "../../commerce/types.ts";
 
 type SalesforceProduct =
   | ProductBaseSalesforce
@@ -590,35 +595,35 @@ export const toFilters = (
 ): ProductListingPage["filters"] =>
   (refinements ?? [])?.map((f) => (
     {
-    "@type": "FilterToggle",
-    label: f.label,
-    key: f.attributeId,
-    values: (f.values ?? []).map(
-      ({ value: value, hitCount: quantity, label: label }) => {
-        
-        const index = currentFilters.findIndex((x) => x === value);
-        const selected = index > -1;
-        const newFilters = selected
-          ? currentFilters.filter((x) => x !== value)
-          : [...currentFilters, value];
+      "@type": "FilterToggle",
+      label: f.label,
+      key: f.attributeId,
+      values: (f.values ?? []).map(
+        ({ value: value, hitCount: quantity, label: label }) => {
+          const index = currentFilters.findIndex((x) => x === value);
+          const selected = index > -1;
+          const newFilters = selected
+            ? currentFilters.filter((x) => x !== value)
+            : [...currentFilters, value];
 
-        const params = new URLSearchParams(url.searchParams);
-        return {
-          value,
-          label,
-          quantity,
-          selected,
-          url: `?${
-            filtersToSearchParams(
-              [{ key: f.attributeId, value: value }],
-              params,
-            )
-          }`,
-        };
-      },
-    ),
-    quantity: 0,
-  }));
+          const params = new URLSearchParams(url.searchParams);
+          return {
+            value,
+            label,
+            quantity,
+            selected,
+            url: `?${
+              filtersToSearchParams(
+                [{ key: f.attributeId, value: value }],
+                params,
+              )
+            }`,
+          };
+        },
+      ),
+      quantity: 0,
+    }
+  ));
 
 export const filtersToSearchParams = (
   selectedRefinements: SelectedRefinement[],

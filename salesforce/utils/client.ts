@@ -1,12 +1,12 @@
 import {
   Basket,
   BasketItems,
+  CategorySalesforce,
   DynamicAttributes,
   ProductSearch,
   Sort,
   Suggestions,
   TokenBaseSalesforce,
-  CategorySalesforce,
 } from "./types.ts";
 
 export interface SalesforceClient {
@@ -138,9 +138,9 @@ export interface SalesforceClient {
       };
     };
 
-    "GET /product/shopper-products/v1/organizations/:organizationId/categories/:id":
+  "GET /product/shopper-products/v1/organizations/:organizationId/categories/:id":
     {
-      response:CategorySalesforce;
+      response: CategorySalesforce;
       searchParams: {
         siteId: string;
         locale?: string;
@@ -150,6 +150,4 @@ export interface SalesforceClient {
         Authorization: string;
       };
     };
-
-    
 }
