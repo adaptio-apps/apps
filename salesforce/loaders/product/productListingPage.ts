@@ -210,7 +210,7 @@ export default async function loader(
     url,
   );
 
-  console.log(filters)
+  console.log(filters);
 
   const hasNextPage = (offset + limit) < searchResult.total;
   const hasPreviousPage = offset > 0;

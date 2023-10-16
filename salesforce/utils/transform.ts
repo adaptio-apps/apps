@@ -589,7 +589,6 @@ const toVariantOffer = (variant: Variants): Offer[] => [
   },
 ];
 
-  
 export const toFilters = (
   refinements: ProductSearchRefinements[] = [],
   currentFilters: SelectedRefinement[] = [],
