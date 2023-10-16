@@ -203,12 +203,14 @@ export default async function loader(
     label: sort.label,
   }));
 
-  const currentFilters = url.searchParams.get("filter")?.split("/") ?? [];
+  const currentFilters = filtersFromURL(url);
   const filters = toFilters(
     searchResult.refinements,
     currentFilters,
     url,
   );
+
+  console.log(filters)
 
   const hasNextPage = (offset + limit) < searchResult.total;
   const hasPreviousPage = offset > 0;

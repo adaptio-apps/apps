@@ -30,6 +30,7 @@ import type {
 import type {
   FilterRange,
   FilterToggle,
+  FilterToggleValue,
   ProductListingPage,
   Search,
 } from "../../commerce/types.ts";
@@ -588,42 +589,44 @@ const toVariantOffer = (variant: Variants): Offer[] => [
   },
 ];
 
+  
 export const toFilters = (
-  refinements: ProductSearchRefinements[],
-  currentFilters: string[],
+  refinements: ProductSearchRefinements[] = [],
+  currentFilters: SelectedRefinement[] = [],
   url: URL,
 ): ProductListingPage["filters"] =>
-  (refinements ?? [])?.map((f) => (
-    {
-      "@type": "FilterToggle",
-      label: f.label,
-      key: f.attributeId,
-      values: (f.values ?? []).map(
-        ({ value: value, hitCount: quantity, label: label }) => {
-          const index = currentFilters.findIndex((x) => x === value);
-          const selected = index > -1;
-          const newFilters = selected
-            ? currentFilters.filter((x) => x !== value)
-            : [...currentFilters, value];
+  refinements.map((f) => ({
+    "@type": "FilterToggle",
+    label: f.label,
+    key: f.attributeId,
+    values: (f.values ?? []).map(({ value, hitCount: quantity, label }) => {
+      const selected = currentFilters.some(
+        (item) => item.key === f.attributeId && item.value === value,
+      );
 
-          const params = new URLSearchParams(url.searchParams);
-          return {
-            value,
-            label,
-            quantity,
-            selected,
-            url: `?${
-              filtersToSearchParams(
-                [{ key: f.attributeId, value: value }],
-                params,
-              )
-            }`,
-          };
-        },
-      ),
-      quantity: 0,
-    }
-  ));
+      const params = new URLSearchParams(url.searchParams);
+      selected ? params.delete(`filter.${f.attributeId}`, value) : null;
+      params.delete("page");
+
+      if (quantity) {
+        return {
+          value,
+          label,
+          quantity,
+          selected,
+          url: `?${
+            filtersToSearchParams(
+              selected ? [] : [{ key: f.attributeId, value }],
+              params,
+            )
+          }`,
+        } as FilterToggleValue;
+      }
+
+      return {} as FilterToggleValue;
+    }).filter((value) => value.value),
+    quantity: 0,
+  }));
 
 export const filtersToSearchParams = (
   selectedRefinements: SelectedRefinement[],
