@@ -43,7 +43,6 @@ export default async function loader(
     }
     : basket;
 
-  console.log(finalBasket);
   return {
     ...finalBasket,
     locale: ctx.locale ?? "",

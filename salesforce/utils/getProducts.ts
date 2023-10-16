@@ -37,7 +37,6 @@ export default async function getProducts(
     );
 
   const productSearchResult = await response.json();
-  console.log(JSON.stringify(productSearchResult));
 
   return productSearchResult;
 }

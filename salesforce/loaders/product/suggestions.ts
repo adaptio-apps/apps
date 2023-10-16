@@ -83,6 +83,5 @@ export default async function loader(
     products.length,
   );
 
-  console.log(searches, products);
   return { searches, products };
 }

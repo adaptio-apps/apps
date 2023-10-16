@@ -292,7 +292,7 @@ export interface ProductSearch {
   limit: number;
   hits: ProductSearchHits[];
   query: string;
-  refinements: ProductSearchRefinments[];
+  refinements: ProductSearchRefinements[];
   searchPhraseSuggestions: ProductSearchSuggestions;
   sortingOptions: SortingOptions[];
   offset: number;
@@ -320,13 +320,13 @@ export interface RepresentedProduct {
   id: string;
 }
 
-export interface ProductSearchRefinments {
+export interface ProductSearchRefinements {
   attributeId: string;
   label: string;
-  values?: ProductSearchRefinmentsValues[];
+  values?: ProductSearchRefinementsValues[];
 }
 
-export interface ProductSearchRefinmentsValues {
+export interface ProductSearchRefinementsValues {
   hitCount: number;
   label: string;
   presentationId?: string;
@@ -668,4 +668,37 @@ export interface productSearchAddictionalInfo {
   variants: Variants[];
   brand: string;
   productId: string;
+}
+
+export interface CategorySalesforce {
+  categories: Category[];
+  id: string;
+  name: string;
+  pageDescription: string;
+  pageKeywords: string;
+  pageTitle: string;
+  parentCategoryId: string;
+  parent_category_tree: ParentCategoryTree[];
+  c_enableCompare: boolean;
+  c_headerMenuOrientation: string;
+  c_showInMenu: boolean;
+}
+
+export interface Category {
+  id: string;
+  image: string;
+  name: string;
+  pageDescription: string;
+  pageKeywords: string;
+  pageTitle: string;
+  parentCategoryId: string;
+  parent_category_tree: ParentCategoryTree[];
+  c_enableCompare: boolean;
+  c_showInMenu: boolean;
+  c_slotBannerImage: string;
+}
+
+export interface ParentCategoryTree {
+  id: string;
+  name: string;
 }

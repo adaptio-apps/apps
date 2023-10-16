@@ -1,7 +1,12 @@
 // deno-lint-ignore-file no-explicit-any
-import { PricingRange, RefineParams, Sort } from "../../utils/types.ts";
+import {
+  CategorySalesforce,
+  PricingRange,
+  RefineParams,
+  Sort,
+} from "../../utils/types.ts";
 import { AppContext } from "../../mod.ts";
-import type { ProductListingPage } from "../../../commerce/types.ts";
+import type { ProductListingPage, Seo } from "../../../commerce/types.ts";
 import {
   filtersFromURL,
   toFilters,
@@ -9,6 +14,9 @@ import {
 } from "../../utils/transform.ts";
 import { getSession } from "../../utils/session.ts";
 import getProducts from "../../utils/getProducts.ts";
+
+import getCategories from "../../utils/getCategories.ts";
+
 /**
  * @title Salesforce - Product List
  */
@@ -115,6 +123,33 @@ export default async function loader(
 
   const refine: string[] = [];
 
+
+  const categoryName = url.pathname.split("/");
+  const seo: Seo = {
+    title: "",
+    description: "",
+    canonical: "",
+  };
+  if (categoryName) {
+    const categorySearchText = categoryName.filter((str) => str !== "").join(
+      "-",
+    );
+
+    let categorySearch: CategorySalesforce | null;
+    if (categorySearchText) {
+      categorySearch = await (getCategories({ id: categorySearchText }, ctx));
+      const selectedCategory = categorySearch?.categories?.find((
+        cat: { id: string },
+      ) => cat.id = categorySearchText);
+      if (selectedCategory) {
+        refine.push(`cgid=${selectedCategory?.id}&`);
+        seo.title = selectedCategory.pageTitle;
+        seo.description = selectedCategory.pageDescription;
+        seo.canonical = req.url;
+      }
+    }
+  }
+
   const refinements = filtersFromURL(url);
 
   refinements.map((ref) => {
@@ -164,8 +199,12 @@ export default async function loader(
     )
   );
 
-  const currentFilters = url.searchParams.get("filter")?.split("/") ?? [];
+  const sortOptions = searchResult.sortingOptions.map((sort) => ({
+    value: sort.id,
+    label: sort.label,
+  }));
 
+  const currentFilters = url.searchParams.get("filter")?.split("/") ?? [];
   const filters = toFilters(
     searchResult.refinements,
     currentFilters,
@@ -199,6 +238,7 @@ export default async function loader(
       previousPage: hasPreviousPage ? `?${previousPage.toString()}` : undefined,
       currentPage: page,
     },
-    sortOptions: [],
+    sortOptions: sortOptions,
+    seo: seo,
   };
 }

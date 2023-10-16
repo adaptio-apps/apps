@@ -6,6 +6,7 @@ import {
   Sort,
   Suggestions,
   TokenBaseSalesforce,
+  CategorySalesforce,
 } from "./types.ts";
 
 export interface SalesforceClient {
@@ -136,4 +137,19 @@ export interface SalesforceClient {
         Authorization: string;
       };
     };
+
+    "GET /product/shopper-products/v1/organizations/:organizationId/categories/:id":
+    {
+      response:CategorySalesforce;
+      searchParams: {
+        siteId: string;
+        locale?: string;
+        levels?: number;
+      };
+      headers: {
+        Authorization: string;
+      };
+    };
+
+    
 }

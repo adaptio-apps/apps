@@ -29,7 +29,6 @@ const enqueue = (
       if (controller.signal.aborted || !cart) {
         throw { name: "AbortError" };
       }
-      console.log(cart);
       context.cart.value = { ...context.cart.value, ...cart };
 
       loading.value = false;

@@ -8,7 +8,7 @@ import type {
   ProductSearch,
   productSearchAddictionalInfo,
   ProductSearchHits,
-  ProductSearchRefinments,
+  ProductSearchRefinements,
   ProductSuggestions,
   SelectedRefinement,
   SuggestedTerm,
@@ -18,6 +18,7 @@ import type {
 } from "./types.ts";
 import type {
   BreadcrumbList,
+  Filter,
   ImageObject,
   Offer,
   Product,
@@ -26,7 +27,7 @@ import type {
   PropertyValue,
   Suggestion,
 } from "deco-sites/std/commerce/types.ts";
-import type { ProductListingPage, Search } from "../../commerce/types.ts";
+import type { FilterRange, FilterToggle, ProductListingPage, Search } from "../../commerce/types.ts";
 
 type SalesforceProduct =
   | ProductBaseSalesforce
@@ -116,7 +117,6 @@ export const toProductSuggestions = (
       price,
     }) => {
       const offers = toOffer(price, false, 0);
-      console.log("imagemSearch", imagemSearch);
       const productImage = imagemSearch?.data.find((image: { id: string }) =>
         image.id === productId
       );
@@ -584,16 +584,18 @@ const toVariantOffer = (variant: Variants): Offer[] => [
 ];
 
 export const toFilters = (
-  refinements: ProductSearchRefinments[],
+  refinements: ProductSearchRefinements[],
   currentFilters: string[],
   url: URL,
 ): ProductListingPage["filters"] =>
-  (refinements ?? [])?.map((f) => ({
+  (refinements ?? [])?.map((f) => (
+    {
     "@type": "FilterToggle",
     label: f.label,
     key: f.attributeId,
     values: (f.values ?? []).map(
       ({ value: value, hitCount: quantity, label: label }) => {
+        
         const index = currentFilters.findIndex((x) => x === value);
         const selected = index > -1;
         const newFilters = selected

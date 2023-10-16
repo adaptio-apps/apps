@@ -37,7 +37,6 @@ export const serialize = ({
 export const getSessionCookie = (req: Request): Session => {
   const cookies = getCookies(req.headers);
   const cookie = cookies[SESSION_COOKIE_NAME];
-  console.log(cookie);
   const session = cookie && parse(cookie);
   return {
     ...session,
@@ -49,9 +48,7 @@ export const getSessionHeaders = (
   headers?: Headers,
 ) => {
   const h = new Headers(headers);
-  console.log(session);
   h.set("Authorizathion", `Bearer ${session.token!}`);
-  console.log("porra do header", h);
   return h;
 };
 
