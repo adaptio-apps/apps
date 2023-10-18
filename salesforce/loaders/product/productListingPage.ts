@@ -63,7 +63,8 @@ export interface Props {
    */
   limit: number;
   page?: number;
-  addictionalInformationAllowed: boolean;
+  additionalInfo?: boolean;
+  priceRange?: boolean;
 }
 
 const sortOptions = [
@@ -110,7 +111,7 @@ export default async function loader(
   const { slc, organizationId, siteId } = ctx;
 
   const session = getSession(ctx);
-  const { addictionalInformationAllowed } = props;
+  const { additionalInfo, priceRange } = props;
 
   const url = new URL(req.url);
   const {
@@ -178,7 +179,7 @@ export default async function loader(
   const ids = searchResult.hits?.map((items) => items.productId.toString());
   let addictionalInformation: any;
 
-  if (addictionalInformationAllowed) {
+  if (additionalInfo) {
     addictionalInformation = await getProducts(
       {
         ids: ids,
@@ -208,9 +209,8 @@ export default async function loader(
     searchResult.refinements,
     currentFilters,
     url,
+    priceRange,
   );
-
-  console.log(filters);
 
   const hasNextPage = (offset + limit) < searchResult.total;
   const hasPreviousPage = offset > 0;

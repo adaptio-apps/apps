@@ -63,3 +63,11 @@ export const convertSecondsToDate = (seconds: number): Date => {
   const actualDate = new Date();
   return new Date(actualDate.getTime() + seconds * 1000);
 };
+
+export function removeParenthesis(s: string) {
+  return s.replace(/\(|\)/g, "");
+}
+
+export function getPriceRange(s: string, position: number) {
+  return Number(s.split("..")[position]);
+}

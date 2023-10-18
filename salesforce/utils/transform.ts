@@ -1,8 +1,6 @@
 // deno-lint-ignore-file
-import { slugfy } from "./utils.ts";
+import { getPriceRange, removeParenthesis, slugfy } from "./utils.ts";
 import type {
-  BrandSuggestions,
-  CategorySuggestions,
   ImageGroups,
   ProductBaseSalesforce,
   ProductSearch,
@@ -11,25 +9,20 @@ import type {
   ProductSearchRefinements,
   ProductSuggestions,
   SelectedRefinement,
-  SuggestedTerm,
-  SuggestionTerm,
   Variants,
   VariationAttributes,
 } from "./types.ts";
 import type {
   BreadcrumbList,
-  Filter,
+  FilterRange,
   ImageObject,
   Offer,
   Product,
   ProductDetailsPage,
   ProductGroup,
   PropertyValue,
-  Suggestion,
 } from "deco-sites/std/commerce/types.ts";
 import type {
-  FilterRange,
-  FilterToggle,
   FilterToggleValue,
   ProductListingPage,
   Search,
@@ -593,23 +586,42 @@ export const toFilters = (
   refinements: ProductSearchRefinements[] = [],
   currentFilters: SelectedRefinement[] = [],
   url: URL,
-): ProductListingPage["filters"] =>
-  refinements.map((f) => ({
-    "@type": "FilterToggle",
-    label: f.label,
-    key: f.attributeId,
-    values: (f.values ?? []).map(({ value, hitCount: quantity, label }) => {
-      const selected = currentFilters.some(
-        (item) => item.key === f.attributeId && item.value === value,
+  withPriceRange?: boolean,
+): ProductListingPage["filters"] => {
+  const filters = refinements.map((f) => {
+    if (f.attributeId === "price" && withPriceRange) {
+      const minValueString = removeParenthesis(
+        f.values?.at(0)?.value.toString() ?? "",
       );
+      const minValue = getPriceRange(minValueString, 0);
+      const maxValueString = removeParenthesis(
+        f.values?.at(-1)?.value.toString() ?? "",
+      );
+      const maxValue = getPriceRange(maxValueString, 1);
+      return {
+        "@type": "FilterRange" as const,
+        values: {
+          min: minValue,
+          max: maxValue,
+        },
+        label: f.label,
+        key: f.attributeId,
+      };
+    }
+    const filterValues = (f.values ?? []).map(
+      ({ value, hitCount: quantity, label }) => {
+        const selected = currentFilters.some(
+          (item) => item.key === f.attributeId && item.value === value,
+        );
 
-      const params = new URLSearchParams(url.searchParams);
-      selected ? params.delete(`filter.${f.attributeId}`, value) : null;
-      params.delete("page");
+        const params = new URLSearchParams(url.searchParams);
+        selected ? params.delete(`filter.${f.attributeId}`, value) : null;
+        params.delete("page");
 
-      if (quantity) {
         return {
-          value,
+          value: f.attributeId === "price"
+            ? removeParenthesis(value).replace("..", ":")
+            : value,
           label,
           quantity,
           selected,
@@ -620,12 +632,27 @@ export const toFilters = (
             )
           }`,
         } as FilterToggleValue;
-      }
+      },
+    ).filter((item) => item.quantity);
 
-      return {} as FilterToggleValue;
-    }).filter((value) => value.value),
-    quantity: 0,
-  }));
+    const quantity = filterValues.reduce(
+      (acc, current) => acc + current.quantity,
+      0,
+    )
+
+    if (quantity === 0) return null 
+
+    return {
+      "@type": "FilterToggle" as const,
+      label: f.label,
+      key: f.attributeId,
+      values: filterValues,
+      quantity
+    };
+  }).filter((item) => !!item);
+
+  return filters as ProductListingPage["filters"];
+};
 
 export const filtersToSearchParams = (
   selectedRefinements: SelectedRefinement[],
