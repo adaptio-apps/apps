@@ -638,16 +638,16 @@ export const toFilters = (
     const quantity = filterValues.reduce(
       (acc, current) => acc + current.quantity,
       0,
-    )
+    );
 
-    if (quantity === 0) return null 
+    if (quantity === 0) return null;
 
     return {
       "@type": "FilterToggle" as const,
       label: f.label,
       key: f.attributeId,
       values: filterValues,
-      quantity
+      quantity,
     };
   }).filter((item) => !!item);
 
