@@ -1,19 +1,14 @@
 // deno-lint-ignore-file no-explicit-any
-import {
-  CategorySalesforce,
-  PricingRange,
-  RefineParams,
-  Sort,
-} from "../../utils/types.ts";
-import { AppContext } from "../../mod.ts";
 import type { ProductListingPage, Seo } from "../../../commerce/types.ts";
+import { AppContext } from "../../mod.ts";
+import getProducts from "../../utils/getProducts.ts";
+import { getSession } from "../../utils/session.ts";
 import {
   filtersFromURL,
   toFilters,
   toProductHit,
 } from "../../utils/transform.ts";
-import { getSession } from "../../utils/session.ts";
-import getProducts from "../../utils/getProducts.ts";
+import { PricingRange, RefineParams, Sort } from "../../utils/types.ts";
 
 import getCategories from "../../utils/getCategories.ts";
 
@@ -135,16 +130,14 @@ export default async function loader(
       "-",
     );
 
-    let categorySearch: CategorySalesforce | null;
     if (categorySearchText) {
-      categorySearch = await (getCategories({ id: categorySearchText }, ctx));
-      const selectedCategory = categorySearch?.categories?.find((
-        cat: { id: string },
-      ) => cat.id = categorySearchText);
-      if (selectedCategory) {
-        refine.push(`cgid=${selectedCategory?.id}&`);
-        seo.title = selectedCategory.pageTitle;
-        seo.description = selectedCategory.pageDescription;
+      const categorySearch =
+        await (getCategories({ id: categorySearchText }, ctx));
+
+      if (categorySearch) {
+        refine.push(`cgid=${categorySearch?.id}`);
+        seo.title = categorySearch.pageTitle;
+        seo.description = categorySearch.pageDescription;
         seo.canonical = req.url;
       }
     }
@@ -152,8 +145,8 @@ export default async function loader(
 
   const refinements = filtersFromURL(url);
 
-  refinements.map((ref) => {
-    refine.push(`${ref.key}=${ref.value}&`);
+  refinements.forEach((ref) => {
+    refine.push(`${ref.key}=${ref.value}`);
   });
 
   const response = await slc
@@ -161,7 +154,7 @@ export default async function loader(
       {
         organizationId,
         siteId,
-        refine: refine,
+        refine,
         q: query,
         sort,
         limit,
