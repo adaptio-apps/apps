@@ -8,6 +8,7 @@ import manifest, { Manifest } from "./manifest.gen.ts";
 import type { Account } from "./utils/types.ts";
 import { SalesforceClient } from "./utils/client.ts";
 import { createHttpClient } from "../utils/http.ts";
+import { fetchSafe } from "./utils/fetchSalesforce.ts";
 import { middleware } from "./middleware.ts";
 import workflow from "../workflows/mod.ts";
 
@@ -31,6 +32,7 @@ export default function Salesforce(
 ) {
   const slc = createHttpClient<SalesforceClient>({
     base: `https://${prop.shortCode}.api.commercecloud.salesforce.com`,
+    fetcher: fetchSafe,
   });
 
   const state = { ...prop, slc };

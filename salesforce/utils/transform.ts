@@ -240,6 +240,10 @@ export const toProduct = (
     ? toVariantProduct(product, product.variants, baseURL)
     : undefined;
 
+  const variant = variantId
+    ? product.variants?.find((variant) => variant.productId === variantId)
+    : product.variants?.at(0);
+
   const offers = toOffer(price, inventory.orderable, inventory.stockLevel);
   return {
     "@type": "Product",
@@ -254,9 +258,10 @@ export const toProduct = (
       name: brand,
     },
     gtin: variantId,
-    additionalProperty: toAdditionalProperties(
+
+    additionalProperty: toVariantAdditionalProperties(
+      variant?.variationValues!,
       product.variationAttributes,
-      product,
     ),
     isVariantOf,
     sku: variantId || product.variants?.at(0)?.productId!,

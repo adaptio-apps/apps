@@ -73,7 +73,6 @@ export default async function loader(
   const variantId = url.searchParams.get("skuId") ?? "";
 
   const newProduct = toProductPage(getProductById, url.origin, variantId);
-
   return newProduct;
 }
 
