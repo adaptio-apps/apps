@@ -1,4 +1,4 @@
-import { PricingRange, RefineParams } from "./types.ts";
+import { PricingRange } from "./types.ts";
 
 export function slugfy(url: string) {
   return url
