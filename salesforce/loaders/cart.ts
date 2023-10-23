@@ -1,8 +1,9 @@
-import { Basket, Images, ProductBaseSalesforce } from "../utils/types.ts";
+import { Basket } from "../utils/types.ts";
 import { AppContext } from "../mod.ts";
-import { paths } from "../utils/paths.ts";
-import { fetchAPI } from "../../utils/fetch.ts";
 import { getSession, getSessionCookie } from "../utils/session.ts";
+import { getHeaders } from "../utils/transform.ts";
+import getBasketImages from "../utils/product.ts";
+import { proxySetCookie } from "../utils/cookies.ts";
 
 /**
  * @title Salesforce - Get Cart
@@ -19,56 +20,42 @@ export default async function loader(
   }
 
   const { basketId, token } = session;
-  const basket = (await fetchAPI<Basket>(
-    paths(ctx)
-      .checkout.shopper_baskets.v1.organizations._organizationId.baskets()
-      .basketId(basketId!)._,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token!}`,
-      },
-    },
-  )) as Basket;
+  const { slc, organizationId, siteId } = ctx;
 
-  const finalBasket = basket.productItems
-    ? {
-      ...basket,
-      productItems: await Promise.all(
-        basket.productItems.map(async (item) => ({
-          ...item,
-          image: await fetchImagesAPI(ctx, item.productId, token!),
-        })),
-      ),
+  try {
+    const response = await slc
+      ["GET /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId"](
+        {
+          organizationId,
+          basketId: basketId!,
+          siteId,
+        },
+        {
+          headers: getHeaders(token!),
+        },
+      );
+
+    const basket = await response.json();
+
+    const productsBasketSku: string[] = basket.productItems?.map(
+      (item: { productId: string }) => {
+        return item.productId;
+      },
+    );
+
+    proxySetCookie(response.headers, ctx.response.headers, req.url);
+    if (!productsBasketSku) {
+      return { ...basket, productItems: [] };
     }
-    : basket;
+    const finalBasket = await getBasketImages(basket, productsBasketSku, ctx);
 
-  return {
-    ...finalBasket,
-    locale: ctx.locale ?? "",
-  };
+    return {
+      ...finalBasket,
+      locale: ctx.locale ?? "",
+    };
+  } catch (error) {
+    console.error(error);
+
+    throw error;
+  }
 }
-
-const fetchImagesAPI = async (
-  ctx: AppContext,
-  productId: string,
-  token: string,
-): Promise<Images> => {
-  const response = (await fetchAPI<ProductBaseSalesforce>(
-    paths(
-      ctx,
-    ).product.shopper_products.v1.organizations._organizationId.products
-      .productId(
-        productId,
-        { expand: "images", allImages: false },
-      ),
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  )) as ProductBaseSalesforce;
-
-  return response.imageGroups[0].images[0];
-};

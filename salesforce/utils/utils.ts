@@ -36,11 +36,15 @@ export const stringfyParams = (params?: object): string => {
   );
 };
 
-export const toRefineParams = (extraParams: RefineParams[]) => {
-  return extraParams.reduce((initial, param) => ({
-    ...initial,
-    [`refine_${param.key}`]: param.value,
-  }), {});
+export const toRefineParams = (
+  extraParams: { key: string; value: string }[],
+) => {
+  return extraParams.reduce((initial, param) => {
+    return {
+      ...initial,
+      [`refine=${param.key}`]: param.value,
+    };
+  }, {});
 };
 
 export const toPriceRange = (pricingRange: PricingRange | undefined) => {

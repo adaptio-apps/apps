@@ -245,6 +245,7 @@ export const toProduct = (
     : product.variants?.at(0);
 
   const offers = toOffer(price, inventory.orderable, inventory.stockLevel);
+
   return {
     "@type": "Product",
     category: toCategory(primaryCategoryId),
@@ -258,22 +259,13 @@ export const toProduct = (
       name: brand,
     },
     gtin: variantId,
-
     additionalProperty: toVariantAdditionalProperties(
       variant?.variationValues!,
       product.variationAttributes,
     ),
     isVariantOf,
-    sku: variantId || product.variants?.at(0)?.productId!,
-    image: imageGroups
-      .filter((obj) => !obj.variationAttributes && obj.viewType === "large")
-      .flatMap((obj) =>
-        obj.images.map((image) => ({
-          "@type": "ImageObject",
-          alternateName: image.alt,
-          url: image.link,
-        }))
-      ),
+    sku: variant?.productId ?? id,
+    image: toVariantImages(imageGroups, variant?.variationValues!),
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: product.currency,

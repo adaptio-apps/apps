@@ -1,7 +1,4 @@
 import { AppContext } from "../../mod.ts";
-import { paths } from "../../utils/paths.ts";
-import { ProductBaseSalesforce, ProductSearch } from "../../utils/types.ts";
-import { fetchAPI } from "../../../utils/fetch.ts";
 import { toProductPage } from "../../utils/transform.ts";
 import type { ProductDetailsPage } from "../../../commerce/types.ts";
 import type { RequestURLParam } from "../../../website/functions/requestToParam.ts";
@@ -25,60 +22,27 @@ export default async function loader(
   const session = getSession(ctx);
 
   const { slug, id } = props;
-
-  if (!slug) return null;
-
-  if (!id) {
-    const getProductBySlug = await fetchProduct<ProductSearch>(
-      paths(
-        ctx,
-      ).search.shopper_search.v1.organizations._organizationId.product_search.q(
-        slug.replace(/-/g, " "),
-        {
-          limit: 1,
-          refine_htype: "master",
-        },
-      ),
-      session.token!,
-    );
-
-    if (getProductBySlug.limit == 0) return null;
-
-    const getProductById = await fetchProduct<ProductBaseSalesforce>(
-      paths(
-        ctx,
-      ).product.shopper_products.v1.organizations._organizationId.products
-        .productId(
-          getProductBySlug.hits[0].productId,
-        ),
-      session.token!,
-    );
-
-    return {
-      ...toProductPage(getProductById, url.origin),
-    };
-  }
-
-  const getProductById = await fetchProduct<ProductBaseSalesforce>(
-    paths(
-      ctx,
-    ).product.shopper_products.v1.organizations._organizationId.products
-      .productId(
-        id,
-        { allImages: true },
-      ),
-    session.token!,
-  );
-
   const variantId = url.searchParams.get("skuId") ?? "";
+  const { slc, organizationId, siteId } = ctx;
 
-  const newProduct = toProductPage(getProductById, url.origin, variantId);
+  if (!slug && !id) return null;
+
+  const getProductById = await slc
+    ["GET /product/shopper-products/v1/organizations/:organizationId/products/:id"](
+      {
+        organizationId,
+        siteId,
+        id,
+        allImages: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+        },
+      },
+    );
+
+  const productResult = await getProductById.json();
+  const newProduct = toProductPage(productResult, url.origin, variantId);
   return newProduct;
 }
-
-const fetchProduct = <T>(path: string, token: string) => {
-  return fetchAPI<T>(path, {
-    method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-};

@@ -3,6 +3,7 @@ import {
   BasketItems,
   CategorySalesforce,
   DynamicAttributes,
+  ProductBaseSalesforce,
   ProductSearch,
   Sort,
   Suggestions,
@@ -146,6 +147,35 @@ export interface SalesforceClient {
         locale?: string;
         levels?: number;
       };
+      headers: {
+        Authorization: string;
+      };
+    };
+  "GET /product/shopper-products/v1/organizations/:organizationId/products/:id":
+    {
+      response: ProductBaseSalesforce;
+      searchParams: {
+        select?: string;
+        inventoryIds?: string;
+        currency?: string;
+        expand?: string[];
+        locale?: string;
+        perPricebook?: boolean;
+        siteId: string;
+        allImages?: boolean;
+      };
+      headers: {
+        Authorization: string;
+      };
+    };
+  "GET /checkout/shopper-baskets/v1/organizations/:organizationId/baskets/:basketId":
+    {
+      searchParams: {
+        siteId: string;
+        locale?: string;
+      };
+      response: Basket;
+
       headers: {
         Authorization: string;
       };

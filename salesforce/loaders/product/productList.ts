@@ -1,11 +1,5 @@
-import {
-  PricingRange,
-  ProductSearch,
-  RefineParams,
-} from "../../utils/types.ts";
+import { PricingRange, RefineParams } from "../../utils/types.ts";
 import { AppContext } from "../../mod.ts";
-import { paths } from "../../utils/paths.ts";
-import { fetchAPI } from "../../../utils/fetch.ts";
 import type { Product } from "../../../commerce/types.ts";
 import { toProductList } from "../../utils/transform.ts";
 import { toPriceRange, toRefineParams } from "../../utils/utils.ts";
@@ -76,38 +70,48 @@ export default async function loader(
   ctx: AppContext,
 ): Promise<Product[] | null> {
   const session = getSession(ctx);
+  const { slc, organizationId, siteId } = ctx;
+
+  const { categoryID, pmid, sort, limit, q, price } = props;
 
   const url = new URL(req.url);
-  const { categoryID, pmid, sort, limit, q, price } = props;
-  const refineParams = toRefineParams(props.extraParams);
-  const getProductBySlug = await fetchProducts<ProductSearch>(
-    paths(
-      ctx,
-    ).search.shopper_search.v1.organizations._organizationId.product_search.q(
-      q,
+
+  const refine: string[] = [];
+
+  refine.push(`cgid=${categoryID?.join("-")}`);
+  pmid ?? refine.push(`pmid=${pmid}`);
+  refine.push("htype=master|product");
+  price ?? refine.push(`price=${toPriceRange(price)}`);
+
+  const refinedParams = toRefineParams(props.extraParams);
+
+  const refinedParamsArray = Object.entries(refinedParams).map(([key, value]) =>
+    `${key}=${value}`
+  );
+  const refinedParamsToSearch = [...refine, ...refinedParamsArray];
+
+  console.log(refinedParamsToSearch);
+
+  const response = await slc
+    ["GET /search/shopper-search/v1/organizations/:organizationId/product-search"](
       {
+        organizationId,
+        siteId,
+        refine: refinedParamsToSearch,
+        q,
         sort,
         limit,
-        refine_cgid: categoryID?.join("-"),
-        refine_pmid: pmid,
-        refine_htype: "master|product",
-        refine_price: toPriceRange(price),
-        ...refineParams,
       },
-    ),
-    session.token!,
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+        },
+      },
+    );
 
-  if (getProductBySlug.total == 0) return null;
+  const searchResult = await response.json();
 
-  return toProductList(getProductBySlug, url.origin);
+  if (searchResult.total == 0) return null;
+
+  return toProductList(searchResult, url.origin);
 }
-
-const fetchProducts = <T>(path: string, token: string): Promise<T> => {
-  return fetchAPI<T>(path, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
