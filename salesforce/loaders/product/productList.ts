@@ -78,10 +78,17 @@ export default async function loader(
 
   const refine: string[] = [];
 
-  refine.push(`cgid=${categoryID?.join("-")}`);
-  pmid ?? refine.push(`pmid=${pmid}`);
+  if (categoryID?.length) {
+    refine.push(`cgid=${categoryID?.join("-")}`);
+  }
+  if (pmid) {
+    refine.push(`pmid=${pmid}`);
+  }
+  if (price?.minValue || price?.maxValue) {
+    refine.push(`price=${toPriceRange(price)}`);
+  }
+
   refine.push("htype=master|product");
-  price ?? refine.push(`price=${toPriceRange(price)}`);
 
   const refinedParams = toRefineParams(props.extraParams);
 
