@@ -244,7 +244,11 @@ export const toProduct = (
     ? product.variants?.find((variant) => variant.productId === variantId)
     : product.variants?.at(0);
 
-  const offers = toOffer(variant?.price ?? price, inventory.orderable, inventory.stockLevel);
+  const offers = toOffer(
+    variant?.price ?? price,
+    inventory.orderable,
+    inventory.stockLevel,
+  );
 
   return {
     "@type": "Product",
